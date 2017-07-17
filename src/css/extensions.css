@@ -1,0 +1,145 @@
+
+.container {
+  display: flex;
+  flex-direction: row;
+  /*height: 100vh;*/
+  width: 100%;
+}
+.sidebar {
+  /*background-image: linear-gradient(15deg, #13547a 0%, #80d0c7 100%);
+  color: white;*/
+
+  padding: 1rem;
+  text-align: right;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  width: 200px;
+}
+.sidebar-inner {
+  position: fixed;
+  top: 1rem;
+}
+
+.content {
+  flex-grow: 1;
+  width: calc(100% - 200px);
+  padding: 1em;
+  padding-right: 6rem;
+}
+
+.content h1 {
+  color: #777;
+}
+
+.sidebar {
+  color: #777;
+}
+
+.sidebar h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5em;
+  /*font-family: Verdana;*/
+  /*font-weight: 400;*/
+}
+.sidebar a {
+  font-size: 1.25rem;
+}
+
+.accent {
+  color: #6fa6cd;
+}
+
+ul.links {
+  list-style: none;
+  margin-top: 1em;
+}
+
+ul.links a {
+  color: #777;
+  text-decoration: none;
+  border-right: 3px solid white;
+  padding-right: 0.25em;
+}
+ul.links a.active {
+  color: #6fa6cd;
+  border-color: #6fa6cd;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+.post{
+  margin-top: 0.5rem;
+}
+.post .post-title h1 {
+  margin-bottom: 0;
+}
+.post .post-title .meta {
+  color: #999;
+}
+
+.post-body {
+  margin-top: 1rem;
+}
+.small-blog-post {
+  margin-top: 3em;
+  margin-left: 1em;
+}
+.small-blog-post:last-child {
+  margin-bottom: 3em;
+}
+
+.title-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  text-decoration: none;
+}
+.title-container img {
+  height: 45px;
+  border-radius: 100%;
+  margin-bottom: 0;
+}
+.title-container:hover .title {
+  text-decoration: underline;
+}
+.title-container > div {
+  margin-left: 0.5em;
+}
+
+.small-blog-post .title {
+  color: #6fa6cd;
+  text-decoration: none;
+  font-size: 1.5em;
+}
+.small-blog-post .date {
+  color: #999;
+  font-size: 0.9em;
+}
+.small-blog-post .description {
+  margin-top: 0.5em;
+}
+
+.post {
+  margin-bottom: 5rem;
+}
+
+.me .header img {
+  height: 50px;
+  border-radius: 100%;
+  margin:0;
+  display: inline-block;
+}
+
+.me .header * {
+  vertical-align: middle;
+}
+
+.me .header h1 {
+  display: inline-block;
+  margin-bottom: 0;
+  margin-left: 0.5em;
+}

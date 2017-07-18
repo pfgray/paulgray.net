@@ -143,3 +143,32 @@ body {
   margin-bottom: 0;
   margin-left: 0.5em;
 }
+
+.project {
+  /*width: calc((100% / 3) - 2em);*/
+  width: 100%;
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 1em;
+  margin: 1em;
+  font-size: 0.75em;
+  box-sizing: border-box;
+}
+
+.project h3 {
+  font-size: 1.5em;
+  margin-bottom: 0.25em;
+}
+
+.project p {
+  margin-bottom: 0.15em;
+}
+
+.project .project-info {
+  width: 55%;
+  display: inline-block;
+  vertical-align: top;
+}
+.project img {
+  width: 45%;
+}

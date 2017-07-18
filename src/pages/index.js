@@ -14,7 +14,6 @@ export default class Index extends React.Component {
 
     return (
       <div>
-        <h1>Paul's Blog</h1>
         {/* <pre>{JSON.stringify(posts, null, 2)}</pre> */}
         {posts.map(post => {
           const desc = post.html.replace(/<(?:.|\n)*?>/gm, '').split(" ").slice(0, 60).join(" ");

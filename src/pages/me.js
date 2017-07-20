@@ -44,7 +44,7 @@ export default class Me extends React.Component {
   render() {
     return (
       <div className="me">
-        <div className="header">
+        <div className="me-header">
           <img src="https://avatars2.githubusercontent.com/u/4752550?v=3&s=460"/>
           <h1>Paul Gray</h1>
           <div className="link-container">

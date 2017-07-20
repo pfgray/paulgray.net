@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 import Link from "gatsby-link"
 import Helmet from "react-helmet"
 import Sidebar from "./Sidebar";
+import Header from "./Header";
 
 class Template extends React.Component {
 
@@ -10,14 +11,15 @@ class Template extends React.Component {
     return (
       <div>
         <Helmet
-          title="Gatsby Default Starter"
+          title="Paul Gray's Blog"
           meta={[
             { name: "description", content: "Sample" },
             { name: "keywords", content: "sample, something" },
           ]}
         />
+        <Header {...this.props} />
         <div className="container">
-          <Sidebar {...this.props}/>
+          <Sidebar {...this.props} />
           <div className="content">
             {this.props.children()}
           </div>

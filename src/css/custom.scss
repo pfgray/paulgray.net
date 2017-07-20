@@ -1,56 +1,16 @@
 @import './colors.scss';
+@import './layout.scss';
 
 .container {
   display: flex;
   flex-direction: row;
-  /*height: 100vh;*/
   width: 100%;
-}
-.sidebar {
-  /*background-image: linear-gradient(15deg, #13547a 0%, #80d0c7 100%);
-  color: white;*/
-
-  padding: 1rem;
-  text-align: right;
-  display: flex;
-  align-items: flex-end;
-  flex-direction: column;
-  width: 200px;
-}
-.sidebar-inner {
-  position: fixed;
-  top: 1rem;
-}
-
-.content {
-  flex-grow: 1;
-  width: calc(100% - 200px);
-  padding: 1em;
-  padding-right: 6rem;
-  margin-top: 1rem;
-}
-
-.content h1 {
-  color: $color-primary;
-}
-
-.sidebar {
-  color: $color-text-gray;
-}
-
-.sidebar h1 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5em;
-  /*font-family: Verdana;*/
-  /*font-weight: 400;*/
-}
-.sidebar a {
-  font-size: 1.25rem;
 }
 
 .accent {
   color: $color-primary;
 }
+
 
 ul.links {
   list-style: none;
@@ -145,7 +105,7 @@ a:hover {
   margin-bottom: 5rem;
 }
 
-.me .header {
+.me .me-header {
   img {
     height: 50px;
     border-radius: 100%;

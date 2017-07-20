@@ -10,7 +10,7 @@ tags:
   - UI
 ---
 
-## Minimize your assumptions with types
+## Minimize your assumptions with types.
 
 As developers, we make assumptions every day when we write code.
 I assume that a method in that library that I’m using didn’t change when I bumped the dependency’s patch version.

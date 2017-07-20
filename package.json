@@ -5,7 +5,6 @@
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
   "dependencies": {
     "es6-object-assign": "^1.1.0",
-    "font-awesome": "^4.7.0",
     "gatsby": "^1.0.1",
     "gatsby-link": "^1.0.1",
     "gatsby-plugin-catch-links": "^1.0.1",
@@ -22,9 +21,7 @@
     "gatsby-source-filesystem": "^1.0.1",
     "gatsby-transformer-remark": "^1.1.0",
     "gatsby-transformer-sharp": "^1.0.1",
-    "gatsby-transformer-yaml": "^1.0.1",
-    "lodash-webpack-plugin": "^0.11.4",
-    "react-fontawesome": "^1.6.1"
+    "gatsby-transformer-yaml": "^1.0.1"
   },
   "devDependencies": {
     "gh-pages": "^0.12.0"

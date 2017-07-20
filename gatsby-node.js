@@ -3,8 +3,6 @@ const Promise = require(`bluebird`)
 const path = require(`path`)
 const slash = require(`slash`)
 
-const webpackLodashPlugin = require(`lodash-webpack-plugin`)
-
 exports.createPages = ({ graphql, boundActionCreators }) => {
   const { createPage } = boundActionCreators
 
@@ -50,8 +48,6 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
 exports.onCreateNode = ({ node, boundActionCreators, getNode }) => {
   const { createNodeField } = boundActionCreators
 
-  // console.log("WWWWAAAATTT", node.internal.type)
-
   if (node.internal.type === `File`) {
     const parsedFilePath = path.parse(node.absolutePath)
     const slug = `/${parsedFilePath.dir.split(`---`)[1]}/`
@@ -77,16 +73,4 @@ exports.onCreateNode = ({ node, boundActionCreators, getNode }) => {
       createNodeField({ node, name: `tagSlugs`, value: tagSlugs })
     }
   }
-}
-
-// Sass and Lodash.
-exports.modifyWebpackConfig = ({ config, stage }) => {
-  switch (stage) {
-    case `build-javascript`:
-      config.plugin(`Lodash`, webpackLodashPlugin, null)
-
-      break
-  }
-
-  return config
 }

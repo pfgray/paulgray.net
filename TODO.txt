@@ -1,0 +1,7 @@
+language syntax highlighting
+mobile
+mobile header color in chrome?
+ssl
+auto build in jenkins
+finishing touches
+new profile pic

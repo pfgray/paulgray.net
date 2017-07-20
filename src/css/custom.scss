@@ -1,3 +1,4 @@
+@import './colors.scss';
 
 .container {
   display: flex;
@@ -26,14 +27,15 @@
   width: calc(100% - 200px);
   padding: 1em;
   padding-right: 6rem;
+  margin-top: 1rem;
 }
 
 .content h1 {
-  color: #777;
+  color: $color-primary;
 }
 
 .sidebar {
-  color: #777;
+  color: $color-text-gray;
 }
 
 .sidebar h1 {
@@ -47,7 +49,7 @@
 }
 
 .accent {
-  color: #6fa6cd;
+  color: $color-primary;
 }
 
 ul.links {
@@ -62,8 +64,8 @@ ul.links a {
   padding-right: 0.25em;
 }
 ul.links a.active {
-  color: #6fa6cd;
-  border-color: #6fa6cd;
+  color: $color-primary;
+  border-color: $color-primary;
 }
 
 body {
@@ -78,15 +80,18 @@ body {
   margin-bottom: 0;
 }
 .post .post-title .meta {
-  color: #999;
+  color: $color-text-gray;
 }
 
 .post-body {
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 .small-blog-post {
-  margin-top: 3em;
+  margin-top: 3rem;
   margin-left: 1em;
+}
+.small-blog-post:first-child{
+  margin-top: 0;
 }
 .small-blog-post:last-child {
   margin-bottom: 3em;
@@ -103,21 +108,34 @@ body {
   border-radius: 100%;
   margin-bottom: 0;
 }
-.title-container:hover .title {
-  text-decoration: underline;
+a:hover, a:active, a:focus {
+  .title {
+    text-decoration: underline;
+  }
 }
 .title-container > div {
   margin-left: 0.5em;
 }
 
 .small-blog-post .title {
-  color: #6fa6cd;
+  color: $color-primary;
   text-decoration: none;
   font-size: 1.5em;
 }
 .small-blog-post .date {
   color: #999;
   font-size: 0.9em;
+}
+a:hover {
+  .date {
+    text-decoration: none !important;
+  }
+}
+
+.small-blog-post .date:hover,
+.small-blog-post .date:focus,
+.small-blog-post .date:active {
+  text-decoration: none;
 }
 .small-blog-post .description {
   margin-top: 0.5em;
@@ -127,21 +145,42 @@ body {
   margin-bottom: 5rem;
 }
 
-.me .header img {
-  height: 50px;
-  border-radius: 100%;
-  margin:0;
-  display: inline-block;
+.me .header {
+  img {
+    height: 50px;
+    border-radius: 100%;
+    margin:0;
+    display: inline-block;
+  }
+  * {
+    vertical-align: middle;
+  }
+  h1 {
+    display: inline-block;
+    margin-bottom: 0;
+    margin-left: 0.5em;
+  }
+  .link-container {margin-top: 1em;}
+  .link {
+    padding-right: 1em;
+    margin-right: 1em;
+    border-right: 1px solid $color-text-gray;
+    &:last-child {border-right: none;}
+    &:hover,&:focus,&:active {
+      text-decoration: underline;
+    }
+  }
 }
 
-.me .header * {
-  vertical-align: middle;
+.projects > * {
+  margin: 1em;
 }
 
-.me .header h1 {
-  display: inline-block;
-  margin-bottom: 0;
-  margin-left: 0.5em;
+.projects .sub {
+  color: #777;
+}
+.projects h2 {
+  margin: 1em 0.5em 0.5em 0.5em;
 }
 
 .project {
@@ -151,7 +190,7 @@ body {
   display: inline-block;
   padding: 1em;
   margin: 1em;
-  font-size: 0.75em;
+  font-size: 0.8em;
   box-sizing: border-box;
 }
 
@@ -171,4 +210,15 @@ body {
 }
 .project img {
   width: 45%;
+}
+
+a {
+  color: $color-primary;
+  text-decoration: none;
+}
+// a:hover,a:focus,a:active {
+//   text-decoration: initial;
+// }
+*:focus {
+    outline: none;
 }

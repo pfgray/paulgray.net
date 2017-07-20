@@ -5,8 +5,7 @@ import Helmet from "react-helmet"
 const dot = entry => val => val[entry];
 
 import '../css/typography.css';
-import '../css/extensions.css';
-import 'font-awesome/css/font-awesome.css';
+import '../css/custom.scss';
 
 export default class Index extends React.Component {
   render() {

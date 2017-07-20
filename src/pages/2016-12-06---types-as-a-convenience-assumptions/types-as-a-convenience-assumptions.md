@@ -21,27 +21,35 @@ Every bug that ever existed was caused by an incorrect assumption from a develop
 Without types
 Here’s a simple example of a regular old javascript method:
 
-    function pluralize(count, singular, plural){
-      if(count === 1){
-        return plural;
-      } else {
-        return singular;
-      }
-    }
+````js
+function pluralize(count, singular, plural){
+  if(count === 1){
+    return plural;
+  } else {
+    return singular;
+  }
+}
+````
 
 This method takes a count (a number), a singular phrase (a string) to display when the count is 1, and a plural phrase (a string) to display when the count is not 1. It’s used like:
 
-    pluralize(1, "child", "children");   // "child"
+````js
+pluralize(1, "child", "children");   // "child"
+````
 
 This works fine without any types included. However, let’s fast forward 3 months (when you’re on the hook to deliver a shiny new feature that was promised a week ago).
 You import the pluralize function and you’re pretty sure you remember how it works:
 
-    import { pluralize } from './helpers';
-    pluralize("child", "children", 3);   // "children"
+````js
+import { pluralize } from './helpers';
+pluralize("child", "children", 3);   // "children"
+````
 
 You refresh the browser, and see in your ui “3 children” and you assume it’s correct (because 3 is plural, right?). Except this won’t work obviously when passed 1:
 
-    pluralize("child", "children", 1);   // "children"
+````js
+pluralize("child", "children", 1);   // "children"
+````
 
 This code is especially sinister because it doesn’t even fail loudly.
 With types
@@ -49,20 +57,24 @@ Let’s try implementing the pluralize function again, but this time, declaring 
 method that takes a count (a number), a singular phrase (a string) to display when the count is 1, and a plural phrase (a string) to display when the count is not 1.
 Notice the words in bold. Those are the types of variables that we assume this function will be passed. Let’s add those in along with the definition of the function:
 
-    function pluralize(count: number, singular: string, plural: string){
-      if(count === 1){
-        return plural;
-      } else {
-        return singular;
-      }
-    }
+````js
+function pluralize(count: number, singular: string, plural: string){
+  if(count === 1){
+    return plural;
+  } else {
+    return singular;
+  }
+}
+````
 
 Notice that aside from the type ascriptions for each parameter, this looks just like regular Javascript.
 Now, if we try to use this function incorrectly (even 5 months later when we forget how we wrote it), we’ll get a compiler error letting us know that our assumptions are wrong:
 
-    pluralize("child", "children", 1);
-    // Argument of type '"child"' is not assignable
-    //   to parameter of type 'number'
+````js
+pluralize("child", "children", 1);
+// Argument of type '"child"' is not assignable
+//   to parameter of type 'number'
+````
 
 The Typescript compiler is telling us we’re trying to use “child” where it expects a number. This jogs our memory, and we remember that the count comes first, so we correct our mistake, and thank the fact that we’re using types that we didn’t ship a product that lets users have “1 children.”
 

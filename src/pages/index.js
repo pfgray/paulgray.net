@@ -6,6 +6,7 @@ const dot = entry => val => val[entry];
 
 import '../css/typography.css';
 import '../css/custom.scss';
+import 'prismjs/themes/prism-solarizedlight.css';
 
 export default class Index extends React.Component {
   render() {

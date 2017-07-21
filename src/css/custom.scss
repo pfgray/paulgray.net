@@ -48,7 +48,6 @@ body {
 }
 .small-blog-post {
   margin-top: 3rem;
-  margin-left: 1em;
 }
 .small-blog-post:first-child{
   margin-top: 0;
@@ -64,6 +63,7 @@ body {
   text-decoration: none;
 }
 .title-container img {
+  display:none;
   height: 45px;
   border-radius: 100%;
   margin-bottom: 0;
@@ -72,9 +72,6 @@ a:hover, a:active, a:focus {
   .title {
     text-decoration: underline;
   }
-}
-.title-container > div {
-  margin-left: 0.5em;
 }
 
 .small-blog-post .title {
@@ -152,15 +149,18 @@ a:hover {
   margin: 1em;
   font-size: 0.8em;
   box-sizing: border-box;
-}
 
-.project h3 {
-  font-size: 1.5em;
-  margin-bottom: 0.25em;
-}
-
-.project p {
-  margin-bottom: 0.15em;
+  @media #{$small} {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  h3 {
+    font-size: 1.5em;
+    margin-bottom: 0.25em;
+  }
+  p {
+    margin-bottom: 0.15em;
+  }
 }
 
 .project .project-info {
@@ -181,4 +181,11 @@ a {
 // }
 *:focus {
     outline: none;
+}
+
+blockquote {
+  border-left: 3px solid #AAA;
+  color: #777;
+  padding-left: 1em;
+  font-style: oblique;
 }

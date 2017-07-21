@@ -14,11 +14,16 @@ tags:
 
 As developers, we make assumptions every day when we write code.
 I assume that a method in that library that I’m using didn’t change when I bumped the dependency’s patch version.
+
 I assume that the data I get back from /api/users is an object, not an array.
+
 I assumed that my wife wanted an honest opinion when she asked “does this look good on me?”
 Assumptions are the great flaw of a developer.
+
 Every bug that ever existed was caused by an incorrect assumption from a developer. Types are a way to put our assumptions in code form, where they can be checked statically. We can be explicit about how our APIs should be used. If we try to use our code incorrectly, we’ll be notified immediately, before our code even hits the browser.
-Without types
+
+### Without types
+
 Here’s a simple example of a regular old javascript method:
 
 ````js
@@ -38,6 +43,7 @@ pluralize(1, "child", "children");   // "child"
 ````
 
 This works fine without any types included. However, let’s fast forward 3 months (when you’re on the hook to deliver a shiny new feature that was promised a week ago).
+
 You import the pluralize function and you’re pretty sure you remember how it works:
 
 ````js
@@ -52,12 +58,16 @@ pluralize("child", "children", 1);   // "children"
 ````
 
 This code is especially sinister because it doesn’t even fail loudly.
-With types
+
+### With types
+
 Let’s try implementing the pluralize function again, but this time, declaring our assumptions with Typescript. Reiterating the purpose of the pluralize function, it should be a:
-method that takes a count (a number), a singular phrase (a string) to display when the count is 1, and a plural phrase (a string) to display when the count is not 1.
+
+> method that takes a count (a number), a singular phrase (a string) to display when the count is 1, and a plural phrase (a string) to display when the count is not 1.
+
 Notice the words in bold. Those are the types of variables that we assume this function will be passed. Let’s add those in along with the definition of the function:
 
-````js
+````typescript
 function pluralize(count: number, singular: string, plural: string){
   if(count === 1){
     return plural;

@@ -58,5 +58,25 @@ $small: "only screen and (max-width: 420px)";
 
   @media #{$small} {
     display: block;
+    h1, ul {
+      display: inline-block;
+    }
+    ul {
+      float: right;
+      li {
+        display: inline-block;
+        margin-right: 0.5em;
+        &:last-child {
+          margin-right: 0;
+        }
+        a {
+          padding-right: 0;
+          border-right: none;
+          &.active {
+            border-bottom: 2px solid $color-primary;
+          }
+        }
+      }
+    }
   }
 }

@@ -1,18 +1,26 @@
 import React from "react";
 import Helmet from "react-helmet";
 
-
 class BlogPostTemplate extends React.Component {
   render() {
-    // return <pre>{JSON.stringify(this.props, null, 2)}</pre>
     const post = this.props.data.markdownRemark;
+
+    const ogTags = post.frontmatter.tags.map(t => ({
+      property: "og:article:tag",
+      content: t
+    }));
+
     return (
       <div className="post">
         <Helmet
           title={post.frontmatter.title}
           meta={[
-            { name: "description", content: "Sample" },
-            { name: "keywords", content: "sample, something" },
+            { name: "description", content: post.frontmatter.subtitle },
+            { name: "keywords", content: post.frontmatter.tags.join(", ") },
+            { property: "og:type", content: "article"},
+            { property: "og:type", content: post.frontmatter.subtitle },
+            // { property: "og:article:published_time", content: post.frontmatter.date },
+            ...ogTags
           ]}
         />
         <div className="post-title">

@@ -1,5 +1,6 @@
 ---
 title: What’s the point of CASA?
+subtitle: Indexing learning media.
 date: "2015-06-24T00:00:00.000Z"
 layout: post
 draft: false

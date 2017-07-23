@@ -1,5 +1,6 @@
 ---
-title: Types as a convenience, Assumptions
+title: Types as a convenience, Assumptions.
+subtitle: Minimize your assumptions with types.
 date: "2016-12-16T05:00:54.222Z"
 layout: post
 draft: false

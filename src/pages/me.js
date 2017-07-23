@@ -44,6 +44,13 @@ export default class Me extends React.Component {
   render() {
     return (
       <div className="me">
+        <Helmet>
+          <title>Paul Gray</title>
+          {/* Facebook Open Graph */}
+          <meta property="og:url" content="https://paulgray.net/me/" />
+          <meta property="og:title" content="Paul Gray" />
+          <meta name="description" property="og:description" content="Paul's projects" />
+        </Helmet>
         <div className="me-header">
           <img src="https://avatars2.githubusercontent.com/u/4752550?v=3&s=460"/>
           <h1>Paul Gray</h1>

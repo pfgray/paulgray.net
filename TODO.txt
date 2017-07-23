@@ -1,7 +1,6 @@
-language syntax highlighting
 mobile
-mobile header color in chrome?
 ssl w/ lets encrypt
 auto build in jenkins
 finishing touches
 new profile pic
+name the blog

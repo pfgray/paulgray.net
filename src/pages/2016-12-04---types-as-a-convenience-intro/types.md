@@ -1,5 +1,6 @@
 ---
-title: Types as a convenience, Intro
+title: Types as a convenience, Intro.
+subtitle: Bringing types to your UI.
 date: "2016-11-04T00:00:00.000Z"
 layout: post
 draft: false

@@ -1,5 +1,6 @@
 ---
-title: Types as a convenience, Inference
+title: Types as a convenience, Inference.
+subtitle: Type-safe doesn’t mean verbose.
 date: "2016-12-16T00:00:00.000Z"
 layout: post
 draft: false

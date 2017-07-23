@@ -74,3 +74,20 @@ exports.onCreateNode = ({ node, boundActionCreators, getNode }) => {
     }
   }
 }
+
+exports.modifyWebpackConfig = function({config, stage}) {
+
+  // "url" loader works just like "file" loader but it also embeds
+  // assets smaller than specified size as data URLs to avoid requests.
+  config.loader(`url-loader`, {
+    test: /\.(svg|jpg|jpeg|png|gif|mp4|webm|wav|mp3|m4a|aac|oga)(\?.*)?$/,
+    loader: `url`,
+    query: {
+      limit: 50,
+      name: `static/[name].[hash:8].[ext]`,
+    },
+  })
+
+  return config;
+
+}

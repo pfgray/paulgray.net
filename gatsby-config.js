@@ -7,6 +7,7 @@ module.exports = {
   mapping: {
     "MarkdownRemark.frontmatter.author": `AuthorYaml`,
   },
+  pathPrefix: "/",
   plugins: [
     {
       resolve: `gatsby-source-filesystem`,

@@ -21,7 +21,9 @@
     "gatsby-source-filesystem": "^1.0.1",
     "gatsby-transformer-remark": "^1.1.0",
     "gatsby-transformer-sharp": "^1.0.1",
-    "gatsby-transformer-yaml": "^1.0.1"
+    "gatsby-transformer-yaml": "^1.0.1",
+    "react-ga": "^2.2.0",
+    "react-images": "^0.5.4"
   },
   "devDependencies": {
     "gh-pages": "^0.12.0"

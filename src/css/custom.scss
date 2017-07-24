@@ -15,6 +15,9 @@
 ul.links {
   list-style: none;
   margin-top: 1em;
+  @media #{$small} {
+    margin-top: 0;
+  }
 }
 
 ul.links a {
@@ -22,6 +25,7 @@ ul.links a {
   text-decoration: none;
   border-right: 3px solid white;
   padding-right: 0.25em;
+
 }
 ul.links a.active {
   color: $color-primary;
@@ -161,15 +165,31 @@ a:hover {
   p {
     margin-bottom: 0.15em;
   }
-}
+  .project-info {
+    width: 55%;
+    display: inline-block;
+    vertical-align: top;
+    @media #{$small} {
+      font-size: 1.5em;
+      width: 100%;
+    }
+  }
+  img.lightbox-preview.small {
+    display: none;
+    margin-bottom: 0;
+    @media #{$small} {
+      display: block;
+    }
+  }
+  img.lightbox-preview.big {
+    width: 45%;
+    cursor: pointer;
 
-.project .project-info {
-  width: 55%;
-  display: inline-block;
-  vertical-align: top;
-}
-.project img {
-  width: 45%;
+    @media #{$small} {
+      display: none;
+    }
+  }
+
 }
 
 a {

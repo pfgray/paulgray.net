@@ -26,7 +26,7 @@ export default class Index extends React.Component {
         {posts.map(post => {
           const desc = post.html.replace(/<(?:.|\n)*?>/gm, '').split(" ").slice(0, 60).join(" ");
           return (
-            <div className="small-blog-post">
+            <div className="small-blog-post" key={post.frontmatter.title}>
               <a className="title-container" href={post.fields.slug}>
                 <img src="https://lh3.googleusercontent.com/-m_rIBQhJziQ/AAAAAAAAAAI/AAAAAAAAAAA/AI6yGXydZXawbSEwT-6SRQyYGwENOQA6HQ/s64-c-mo-md/photo.jpg"/>
                 <div>

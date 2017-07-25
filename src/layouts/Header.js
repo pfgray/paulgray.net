@@ -7,9 +7,9 @@ export default function({location: {pathname}}) {
     <div className="header">
       <h1 className="logo-header">paul<span className="accent">gray</span>.net</h1>
       <ul className="links">
-        <li><Link to='/' className={pathname !== '/me' ? 'active' : ''}>blog</Link></li>
+        <li><Link to='/' className={pathname.includes('/me') ? 'active' : ''}>blog</Link></li>
         {/* <li><Link to='/reference' activeClassName="active">reference</Link></li> */}
-        <li><Link to='/me' className={pathname === '/me' ? 'active' : ''}>me</Link></li>
+        <li><Link to='/me' className={pathname.includes('/me') ? 'active' : ''}>me</Link></li>
       </ul>
     </div>
   );

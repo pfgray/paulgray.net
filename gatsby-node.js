@@ -6,10 +6,12 @@ const slash = require(`slash`)
 exports.createPages = ({ graphql, boundActionCreators }) => {
   const { createPage } = boundActionCreators
 
+  // we still want to make pages for drafts, just not show them on the listing page
+  // filter: { frontmatter: { draft: { ne: true }}}
   return graphql(
       `
       {
-        allMarkdownRemark(limit: 1000, filter: { frontmatter: { draft: { ne: true }}}) {
+        allMarkdownRemark(limit: 1000, ) {
           edges {
             node {
               fields {
@@ -40,6 +42,23 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
             shadow: edge.node.frontmatter.shadow,
           },
         })
+      });
+
+      // Create a tag page:
+      result.data.allMarkdownRemark.edges.forEach(edge => {
+        // console.log('creating page for: ', JSON.stringify(, null, 2));
+        const tagListTemplate = path.resolve(`src/templates/tag.js`);
+        const tags = edge.node.frontmatter ? edge.node.frontmatter.tags : [];
+        tags.forEach(tag => {
+          createPage({
+            path: `/tag/${tag}`, // required
+            component: slash(tagListTemplate),
+            context: {
+              tag: tag
+            }
+          })
+        })
+
       });
     });
 }

@@ -6,7 +6,6 @@ layout: post
 draft: false
 tags:
   - casa
-  - ims
   - IMSGlobal
   - edtech
 ---

@@ -8,7 +8,7 @@ tags:
   - javascript
   - front end
   - typescript
-  - UI
+  - programming
 ---
 
 ## Minimize your assumptions with types.

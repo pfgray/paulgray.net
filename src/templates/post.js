@@ -1,5 +1,7 @@
 import React from "react";
 import Helmet from "react-helmet";
+import Link from "gatsby-link";
+import ColoredTag from './ColoredTag';
 
 class BlogPostTemplate extends React.Component {
   render() {
@@ -18,7 +20,7 @@ class BlogPostTemplate extends React.Component {
             { name: "description", content: post.frontmatter.subtitle },
             { name: "keywords", content: post.frontmatter.tags.join(", ") },
             { property: "og:type", content: "article"},
-            { property: "og:type", content: post.frontmatter.subtitle },
+            { property: "og:description", content: post.frontmatter.subtitle },
             // { property: "og:article:published_time", content: post.frontmatter.date },
             ...ogTags
           ]}
@@ -28,6 +30,8 @@ class BlogPostTemplate extends React.Component {
           <div className="meta">
             {post.frontmatter.date}
           </div>
+          {post.frontmatter.draft ? <div className="draft-tag">draft</div> : null}
+          {post.frontmatter.tags.map(tag => <ColoredTag tag={tag} />)}
         </div>
         <div  className="post-body" dangerouslySetInnerHTML={{ __html: post.html }} />
       </div>
@@ -46,8 +50,10 @@ export const pageQuery = graphql`
       }
       frontmatter {
         title
+        subtitle
         tags
         date(formatString: "MMMM DD, YYYY")
+        draft
       }
     }
   }

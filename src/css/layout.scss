@@ -88,3 +88,31 @@ $small: "only screen and (max-width: 420px)";
     }
   }
 }
+
+@mixin tag() {
+  display: inline-block;
+  padding: .25em .4em;
+  font-size: 75%;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25rem;
+  font-weight: 700;
+}
+
+.draft-tag {
+  text-transform: uppercase;
+  background-color: #d9534f;
+  font-weight: 700;
+  @include tag();
+}
+
+.tag-link {
+  margin-right: 0.5em;
+  &:only-of-type {
+    margin-right: 0.1em;
+  }
+  @include tag();
+}

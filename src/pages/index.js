@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "gatsby-link";
 import Helmet from "react-helmet";
+import PostSummary from '../templates/PostSummary.js';
 
 const dot = entry => val => val[entry];
 
@@ -23,21 +24,7 @@ export default class Index extends React.Component {
         </Helmet>
         <h1>The Gray Side of Software</h1>
         <p>I'm a software engineer, and sometimes I write some stuff.</p>
-        {posts.map(post => {
-          const desc = post.html.replace(/<(?:.|\n)*?>/gm, '').split(" ").slice(0, 60).join(" ");
-          return (
-            <div className="small-blog-post" key={post.frontmatter.title}>
-              <a className="title-container" href={post.fields.slug}>
-                <img src="https://lh3.googleusercontent.com/-m_rIBQhJziQ/AAAAAAAAAAI/AAAAAAAAAAA/AI6yGXydZXawbSEwT-6SRQyYGwENOQA6HQ/s64-c-mo-md/photo.jpg"/>
-                <div>
-                  <div className="title">{post.frontmatter.title}</div>
-                  <div className="date">{post.frontmatter.date}</div>
-                </div>
-              </a>
-              <div className="description" >{desc}...</div>
-            </div>
-          )
-        })}
+        {posts.map(post => <PostSummary key={post.fields.slug} post={post} />)}
       </div>
     )
   }
@@ -45,7 +32,7 @@ export default class Index extends React.Component {
 
 export const pageQuery = graphql`
   query AllMarkdown {
-    allMarkdownRemark(sort: {order:DESC,fields:[frontmatter___date]}) {
+    allMarkdownRemark(sort: {order:DESC,fields:[frontmatter___date]}, filter: { frontmatter: { draft: { ne: true }}}) {
       edges {
         node {
           fields {slug}

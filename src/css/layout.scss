@@ -60,9 +60,22 @@
 
   @media #{$small} {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: baseline;
+    margin-bottom: 0em;
 
-    margin-bottom: 1em;
+    .links {
+      width: 90%;
+      display: flex;
+      justify-content: space-between;
+      margin: 0 auto;
+      margin-top: 0.5em;
+    }
+
+    .logo-header {
+      margin-bottom: 0.25em;
+    }
+
     h1{
       flex-grow: 1;
     }
@@ -71,8 +84,10 @@
       margin:0;
     }
     ul {
+      margin-top: 0.5em;
       font-size: 1.5em;
       li {
+        font-size: 1.15em;
         display: inline-block;
         margin-right: 0.5em;
         margin-bottom: 0;

@@ -3,6 +3,8 @@ import Link from "gatsby-link";
 import Helmet from "react-helmet";
 import Lightbox from "react-images";
 
+import me from '../img/me.jpeg';
+
 import caliper from '../img/caliper.png';
 import caliper_md from '../img/caliper-md.png';
 import caliper_big from '../img/caliper-big.png';
@@ -87,7 +89,7 @@ export default class Me extends React.Component {
           <meta name="description" property="og:description" content="Paul's projects" />
         </Helmet>
         <div className="me-header">
-          <img src="https://avatars2.githubusercontent.com/u/4752550?v=3&s=460"/>
+          <img src={me}/>
           <h1>Paul Gray</h1>
           <div className="link-container">
             <a className="link" href="https://www.github.com/pfgray">github</a>

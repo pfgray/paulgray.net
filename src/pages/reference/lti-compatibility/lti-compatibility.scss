@@ -1,0 +1,139 @@
+@import '../../../css/layout.scss';
+
+.compatibility-table {
+
+  h4.thin {
+    margin-bottom: 0;
+  }
+  img.lg {
+    margin-bottom: 0;
+  }
+  img.sm {
+    display: none;
+  }
+
+  td {
+    text-align: center;
+
+    &:first-of-type {
+      padding-right: 0;
+      width: 25px;
+      min-width: 25px;
+      * {
+        vertical-align: middle;
+      }
+    }
+    &:nth-of-type(2) {
+      text-align: left;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    &.compat {
+      color: #fff;
+      &.no {background-color: #fff; color: #ab5c5c;}
+      &.yes {background-color: #fff; color: #75af75}
+    }
+
+    border-color: #000;
+    border-right: 1px solid #000;
+
+    &:first-of-type {
+      border-right: 0;
+    }
+  }
+  th {
+    padding-top: 0;
+    border-bottom:0;
+  }
+  .compat-header {
+    margin-bottom: 0;
+    margin-top: 3rem;
+  }
+
+  .logo {
+    width: 25px;
+  }
+  .footnote {
+    color: #777;
+    font-style: oblique;
+    font-size: 0.9em;
+    &:first-of-type {
+      margin-top: 5em;
+    }
+    &:last-of-type {
+      margin-bottom: 3em;
+    }
+  }
+
+
+  @media #{$small} {
+    table, tbody, tr, td {
+      width: 100%;
+      display: block;
+    }
+
+    thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+
+
+    tbody td {
+      /* Behave  like a "row" */
+      border: none;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      padding-left: 50%;
+      max-width: 100% !important;
+      min-width: 100% !important;
+      text-align: center !important;
+      &:before {
+        /* Now like a table header */
+        position: absolute;
+        /* Top/left values mimic padding */
+        left: 0px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+      }
+      &:last-of-type{
+        margin: 0;
+        padding-right: 1em;
+        margin-bottom: 2em;
+      }
+      &:nth-of-type(2) {
+        font-size: 1.25em;
+        &:before { font-size: 1em; }
+      }
+      img.sm {
+        display: inline-block;
+        margin-bottom: 0;
+        margin-right: 0.5em;
+        vertical-align: middle;
+      }
+      img.lg {
+        display: none;
+      }
+      &.compat {
+        color: #fff;
+        &.no {background-color: #fff; color: #ab5c5c;}
+        &.yes {background-color: #fff; color: #75af75}
+        &:before {
+          color: #777;
+          vertical-align: middle;
+        }
+      }
+      &:nth-of-type(2):before { content: "Product"; }
+      &:nth-of-type(3):before { content: "1.0"; }
+      &:nth-of-type(4):before { content: "1.1"; }
+      &:nth-of-type(5):before { content: "1.1.1"; }
+      &:nth-of-type(6):before { content: "1.2"; }
+      &:nth-of-type(7):before { content: "2.0"; }
+      &:nth-of-type(8):before { content: "Content Item"; }
+      &:nth-of-type(9):before { content: "Outcomes Service"; }
+    }
+  }
+}

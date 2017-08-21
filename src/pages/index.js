@@ -32,7 +32,7 @@ export default class Index extends React.Component {
 
 export const pageQuery = graphql`
   query AllMarkdown {
-    allMarkdownRemark(sort: {order:DESC,fields:[frontmatter___date]}, filter: { frontmatter: { draft: { ne: true }}}) {
+    allMarkdownRemark(sort: {order:DESC,fields:[frontmatter___date]}, filter: { frontmatter: { draft: { ne: true }, layout: { eq: "post" }}}) {
       edges {
         node {
           fields {slug}

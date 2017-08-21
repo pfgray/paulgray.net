@@ -11,7 +11,7 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
   return graphql(
       `
       {
-        allMarkdownRemark(limit: 1000, ) {
+        allMarkdownRemark(limit: 1000) {
           edges {
             node {
               fields {
@@ -19,6 +19,7 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
               }
               frontmatter {
                 tags
+                layout
               }
             }
           }
@@ -29,19 +30,34 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
       if (result.errors) {
         console.log(result.errors)
       }
+
       const blogPostTemplate = path.resolve(`src/templates/post.js`);
+      const refTemplate = path.resolve(`src/templates/referenceTemplate.js`)
 
       // Create blog posts pages.
       result.data.allMarkdownRemark.edges.forEach(edge => {
-        createPage({
-          path: edge.node.fields.slug, // required
-          component: slash(blogPostTemplate),
-          context: {
-            slug: edge.node.fields.slug,
-            highlight: edge.node.frontmatter.highlight,
-            shadow: edge.node.frontmatter.shadow,
-          },
-        })
+        if(edge.node.frontmatter.layout === 'post'){
+          createPage({
+            path: edge.node.fields.slug, // required
+            component: slash(blogPostTemplate),
+            context: {
+              slug: edge.node.fields.slug,
+              highlight: edge.node.frontmatter.highlight,
+              shadow: edge.node.frontmatter.shadow,
+            },
+          })
+        }
+        if(edge.node.frontmatter.layout === 'reference'){
+          createPage({
+            path: '/reference' + edge.node.fields.slug, // required
+            component: slash(refTemplate),
+            context: {
+              slug: edge.node.fields.slug,
+              highlight: edge.node.frontmatter.highlight,
+              shadow: edge.node.frontmatter.shadow,
+            },
+          })
+        }
       });
 
       // Create a tag page:
@@ -70,7 +86,6 @@ exports.onCreateNode = ({ node, boundActionCreators, getNode }) => {
   if (node.internal.type === `File`) {
     const parsedFilePath = path.parse(node.absolutePath)
     const slug = `/${parsedFilePath.dir.split(`---`)[1]}/`
-    // console.log('slug is: ', slug, 'and it was craeted from: ', parsedFilePath);
     createNodeField({ node, name: `slug`, value: slug })
   } else if (
     node.internal.type === `MarkdownRemark` &&

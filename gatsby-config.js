@@ -50,6 +50,7 @@ module.exports = {
     `gatsby-plugin-catch-links`,
     `gatsby-plugin-glamor`,
     `gatsby-plugin-react-helmet`,
-    `gatsby-plugin-sass`
+    `gatsby-plugin-sass`,
+    `gatsby-transformer-javascript-static-exports`
   ],
 }

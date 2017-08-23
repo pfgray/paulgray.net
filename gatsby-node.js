@@ -32,11 +32,12 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
       }
 
       const blogPostTemplate = path.resolve(`src/templates/post.js`);
-      const refTemplate = path.resolve(`src/templates/referenceTemplate.js`)
+      const refTemplate = path.resolve(`src/templates/notesTemplate.js`)
 
       // Create blog posts pages.
       result.data.allMarkdownRemark.edges.forEach(edge => {
         if(edge.node.frontmatter.layout === 'post'){
+          //console.log('Creating a post page: ', edge.node);
           createPage({
             path: edge.node.fields.slug, // required
             component: slash(blogPostTemplate),
@@ -47,9 +48,10 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
             },
           })
         }
-        if(edge.node.frontmatter.layout === 'reference'){
+        if(edge.node.frontmatter.layout === 'note'){
+          //console.log('Created a notes page: ', edge.node);
           createPage({
-            path: '/reference' + edge.node.fields.slug, // required
+            path: edge.node.fields.slug, // required
             component: slash(refTemplate),
             context: {
               slug: edge.node.fields.slug,
@@ -82,30 +84,40 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
 // Add custom url pathname for blog posts.
 exports.onCreateNode = ({ node, boundActionCreators, getNode }) => {
   const { createNodeField } = boundActionCreators
-
   if (node.internal.type === `File`) {
     const parsedFilePath = path.parse(node.absolutePath)
     const slug = `/${parsedFilePath.dir.split(`---`)[1]}/`
     createNodeField({ node, name: `slug`, value: slug })
   } else if (
-    node.internal.type === `MarkdownRemark` &&
+    node.internal.type === `MarkdownRemark` ||
+    node.internal.type === `JSFrontmatter` &&
     typeof node.slug === `undefined`
   ) {
-    const fileNode = getNode(node.parent)
-    createNodeField({
-      node,
-      name: `slug`,
-      value: fileNode.fields.slug,
-    })
 
-    // console.log('okay, markdown remark & slug is: ', fileNode.fields.slug)
+    if(node.frontmatter){
+      const fileNode = getNode(node.parent);
+      const slug = node.frontmatter.layout === 'note' ? `/notes` + fileNode.fields.slug : fileNode.fields.slug;
+      console.log('created slug: ', slug);
+      createNodeField({node, name: `slug`, value: slug})
+      if(node.frontmatter.tags) {
+        const tagSlugs = node.frontmatter.tags.map(
+          tag => `/tags/${_.kebabCase(tag)}/`
+        )
+        createNodeField({ node, name: `tagSlugs`, value: tagSlugs })
+      }
+    } else if(node.data && node.data.format === 'note') {
+      const parsedFilePath = path.parse(node.node.absolutePath);
 
-    if (node.frontmatter.tags) {
-      const tagSlugs = node.frontmatter.tags.map(
-        tag => `/tags/${_.kebabCase(tag)}/`
-      )
-      createNodeField({ node, name: `tagSlugs`, value: tagSlugs })
+      const lastSlash = parsedFilePath.dir.lastIndexOf('/');
+      const dirName = parsedFilePath.dir.substring(lastSlash);
+      const slug = `/notes/${_.kebabCase(dirName)}/`;
+
+      createNodeField({ node, name: `slug`, value: slug })
+      createNodeField({ node, name: `title`, value: node.data.title })
+      createNodeField({ node, name: `date`, value: node.data.date })
+      createNodeField({ node, name: `format`, value: node.data.format })
     }
+
   }
 }
 

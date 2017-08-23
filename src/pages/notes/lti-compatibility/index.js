@@ -243,3 +243,10 @@ export default props => (
     <div className='footnote'>Contact me if you feel any of this information is in error, or if you want your project listed.</div>
   </div>
 );
+
+exports.data = {
+  title: 'Lti Compatibility Table',
+  date:  '2017-08-22T00:34:56.939Z',
+  format: 'note',
+  draft: false
+}

@@ -8,6 +8,7 @@ export default class ReferenceTemplate extends React.Component {
     return (
       <div>
         <h1>{title}</h1>
+        <div  className="post-body" dangerouslySetInnerHTML={{ __html: this.props.data.markdownRemark.html }} />
         <pre>{JSON.stringify(this.props.data.markdownRemark, null, 2)}</pre>
       </div>
     );

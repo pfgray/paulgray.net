@@ -179,6 +179,13 @@ function bool(b){
 export default props => (
   <div className='compatibility-table'>
     <h1>LTI Compatibility</h1>
+    <Helmet>
+      <title>LTI Compatibility Table</title>
+      {/* Facebook Open Graph */}
+      <meta property="og:url" content="https://paulgray.net/notes/lti-compatibility/" />
+      <meta property="og:title" content="LTI Compatibility Table" />
+      <meta name="description" property="og:description" content="Tables containing the compatibility of many LTI implementors." />
+    </Helmet>
     <h4 className='compat-header'>Consumers</h4>
     <table>
       <thead>

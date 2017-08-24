@@ -23,7 +23,7 @@ const consumers = [{
   support: {
     "lti1p0": true,
     "lti1p1": true,
-    "lti1p2": false,
+    "lti1p2": true,
     "lti2p0": true,
     "ltiOutcomes": true,
     "ltiContentItem": false
@@ -52,7 +52,7 @@ const consumers = [{
     "lti1p1": true,
     "lti1p1p1": true,
     "lti1p2": false,
-    "lti2p0": false,
+    "lti2p0": true,
     "ltiOutcomes": true,
     "ltiContentItem": true
   }
@@ -68,7 +68,7 @@ const consumers = [{
     "lti1p2": false,
     "lti2p0": true,
     "ltiOutcomes": true,
-    "ltiContentItem": false
+    "ltiContentItem": true
   }
 },{
   consumer: {
@@ -95,7 +95,7 @@ const consumers = [{
     "lti1p1p1": false,
     "lti1p2": false,
     "lti2p0": true,
-    "ltiOutcomes": false,
+    "ltiOutcomes": true,
     "ltiContentItem": true
   }
 }];

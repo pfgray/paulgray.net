@@ -6,12 +6,12 @@ import PostSummary from '../templates/PostSummary.js';
 export default class Notes extends React.Component {
   render() {
     console.log('got: ', this.props);
+    const md = this.props.data.allMarkdownRemark ? this.props.data.allMarkdownRemark.edges : [];
+    const js = this.props.data.allJsFrontmatter ? this.props.data.allJsFrontmatter.edges : [];
     // return (<pre>{JSON.stringify(this.props, null, 2)}</pre>);
     const posts = [
-      ...this.props.data.allMarkdownRemark.edges
-        .map(e => ({...e.node.fields, ...e.node.frontmatter})),
-      ...this.props.data.allJsFrontmatter.edges
-        .map(e => ({...e.node.fields, ...e.node.data})),
+      ...md.map(e => ({...e.node.fields, ...e.node.frontmatter})),
+      ...js.map(e => ({...e.node.fields, ...e.node.data})),
     ];
 
     return (

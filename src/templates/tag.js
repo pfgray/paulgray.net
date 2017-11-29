@@ -5,7 +5,8 @@ import PostSummary from './PostSummary.js';
 
 class TagTemplate extends React.Component {
   render() {
-    const posts = this.props.data.allMarkdownRemark.edges.map(e => e.node);
+
+    const posts = this.props.data.allMarkdownRemark ? this.props.data.allMarkdownRemark.edges.map(e => e.node) : [];
 
     return (
       <div>

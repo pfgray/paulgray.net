@@ -22,19 +22,19 @@ import link_md from '../img/link-md.png';
 import link_big from '../img/link-big.png';
 
 const projects = [{
-  name: 'Caliper',
+  name: 'Sift',
   desc: "A Caliper event store which will allows monitoring of learning tools' event streams, store them in a couchdb instance.",
   img: caliper_md,
   img_big: caliper_big,
   github: 'https://github.com/pfgray/caliper-store',
-  live: 'http://caliper.paulgray.net'
+  live: 'http://sift.paulgray.net'
 },{
   name: 'Mock LTI Consumer',
   desc: 'An example LTI Consumer for debugging LTI applications. Includes support for Outcomes management service, & outcomes 1.1.',
   img: mocklti_md,
   img_big: mocklti_big,
   github: 'https://github.com/pfgray/mock-lti2-consumer',
-  live: 'lti.paulgray.net'
+  live: 'http://lti.paulgray.net'
 }, {
   name: 'CASA node.js',
   desc: "An example CASA node (pun intended) which is completely open and un-secured. It's useful for testing CASA implementations.",

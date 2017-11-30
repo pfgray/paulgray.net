@@ -3,7 +3,7 @@ title: Testing for Race Conditions with Redux
 subtitle: This post will explain how to write unit tests for race conditions in a redux reducer.
 date: "2017-11-29T05:38:35.002Z"
 layout: post
-draft: true
+draft: false
 tags:
   - javascript
   - front end
@@ -96,8 +96,7 @@ You've probably already noticed out the potential issue with our implementation.
 
 Here's a graphic of the request timing:  
 
-![request_timing](./race_timing.jpg)
-
+![race_timing](./race_timing.svg)
 
 We can write another unit test for this case just by re-ordering our events:
 

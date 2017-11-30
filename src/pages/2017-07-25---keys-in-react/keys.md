@@ -46,7 +46,7 @@ This snippet will create an element structure like this:
 
 React equates elements with matching keys, thus it will only render the first '2', since when it reaches the second element with a key of '2', it's already rendered an element that same key. React will even give you a nice warning:
 
-![react_warning](./react_dupe_warning.png)
+![react_dupe_warning](./react_dupe_warning.png)
 
 The output DOM is then:
 ````html

@@ -41,20 +41,21 @@ And one action that's emitted when the search request gets resolved:
 
 We have a simple reducer that returns a loading state when it receives an `UPDATED_SEARCH` action, and the loaded results state when it receives a `RECEIVE_SEARCH_RESULTS` action.
 
-Let's write a unit test fit this and see how it t turns out.
+Let's write a unit test for this reducer and see how it turns out.
 
 ## Writing a unit test for your reducer.
 
 The functions that define how state changes in redux are called reducers due to their signature (the shape of a function's arguments and return value). If you take a look at how `array.reduce` is defined, it takes the previous sum, the current item, and returns the next sum.
 
 ```javascript
-[1, 2, 3, 4].reduce((prevSum, currentItem) => {
+const endValue = [1, 2, 3, 4].reduce((prevSum, currentItem) => {
   return prevSum + currentItem;
 });
+endValue // 10
 ```
 Here, the sum of the numbers is considered the 'sum' of the reduce.
 
-The signature of the lambda here is exactly like that of our reducer. It takes a previous state (previous sum), an action (current item), and applies that action to the previous state, returning the next state:
+The signature of the lambda here is exactly like that of a redux reducer. It takes a previous state (previous sum), an action (current item), and applies that action to the previous state, returning the next state:
 
 ```javascript
 const searchReducer = (prevState, action) => {
@@ -114,15 +115,15 @@ endState.items
 
 The interface at this point should show the results from `resultsAction2`, but if we inspect the state of our app, we notice it contains the results of `resultAction1`!
 
-This is known as a race condition, and it would be hard to detect since it only occurs when the results of the first request are returned 
+This is known as a race condition, and it would be hard to detect since it only occurs when the results of the first request are returned after a subsequent request.
 
 
 ## The solution
 
-One simple way would be to attach timestamps to the `UPDATE_FILTER` and the corresponding `RECEIVE_SEARCH_RESULTS` action, and only applying actions with timestamps _after_ the last applied action.
+One simple way would be to attach timestamps to the `UPDATE_FILTER` and the corresponding `RECEIVE_SEARCH_RESULTS` action, and only apply actions with timestamps _after_ the last applied action.
 
 
-It'd be a good idea to create one action creator that combines these action dispatches together. In practice this would look like:  
+It'd be a good idea to create one action creator that combines these actions together. In practice this would look like:  
 
 ```javascript
 function updateSearch(searchTerm) {
@@ -160,12 +161,12 @@ const searchReducer = (prevState, action) => {
   if(action.type === 'UPDATED_SEARCH' && actionIsValid(state, action)){
     return {
       loading: true,
-      timestampe: action.payload.timestamp
+      timestamp: action.payload.timestamp
     };
   } else if(action.type === 'RECEIVE_SEARCH_RESULTS' && actionIsValid(state, action)) {
     return {
       loading: false,
-      timestampe: action.payload.timestamp
+      timestamp: action.payload.timestamp
       items: action.payload.items
     };
   } else {
@@ -176,7 +177,7 @@ const searchReducer = (prevState, action) => {
 
 We re-run our tests, and they both pass!
 
-The next time you're writing a unit test for a reducer, remember to include _all_ the possible action sequences that could happen, instead of just the ones you expect to happen.
+The next time you're writing a unit test for a reducer, remember to include _all_ the possible action sequences that could happen, instead of just the ones you expect to happen, and you'll prevent a lot of obscure timing-related bugs.
 
 
 

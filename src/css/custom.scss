@@ -46,6 +46,14 @@ body {
 .post .post-title .meta {
   color: $color-text-gray;
   margin-bottom: 0.5em;
+  * {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+    &:first-child {
+      margin-left: 0;
+    }
+  }
 }
 
 .post-body {
@@ -217,4 +225,19 @@ blockquote {
     margin-bottom: 0;
   }
   p { color: #777; }
+}
+
+.gatsby-highlight {
+  margin-bottom: 1.45rem;
+}
+
+code {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  &::after {
+    content: "";
+  }
+}
+code::after {
+  content: "";
 }

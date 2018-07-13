@@ -1,9 +1,9 @@
 ---
 title: Typing HoCs
 subtitle: Writing type signatures for Higher Order Components
-date: "2018-07-11T00:00:00.000Z"
+date: "2018-07-13T00:00:00.000Z"
 layout: post
-draft: true
+draft: false
 tags:
   - javascript
   - typescript
@@ -48,7 +48,7 @@ const withPromiseHoc = withPromise(() => fetchUser())
 ```js
 function withPromise(f: () => Promise<any>): ???
 ```
-`withState` returns a function that takes a component and returns another component, The type of that value looks like: `(c: ComponentType<any>) => ComponentType<any>`. 
+`withPromise` returns a function that takes a component and returns another component, The type of that function is: `(c: ComponentType<any>) => ComponentType<any>`. 
 _`ComponentType<A>` is a React-specific type that describes any component (sfc or class), where `A` is the type of the props it expects_ 
 We can simply replace the `???` with this type:
 

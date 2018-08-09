@@ -1,3 +1,14 @@
+---
+title: How to write an HOC (in 3 easy steps).
+subtitle: Writing HOCs is complicated, follow these three steps to make it easier.
+date: "2018-01-02T00:00:00.000Z"
+layout: post
+draft: false
+tags:
+  - javascript
+  - higher order components
+  - react
+---
 ## How to write an HOC (in 3 easy steps).
 
 A lot of times when writing software we end up solving similar problems in similar ways. Sometimes we even copy-paste a chunk of code and change just a little bit of it. If you've done this before, don't feel bad; every developer has done this at some point in their career. If you find yourself doing this a lot, you should look for ways to reuse code and solutions that are similar. This principle is called the [DRY principle](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself), which stands for "Don't Repeat Yourself." The benefit of generalizing your solution is that it allows you to not have to solve the same problem twice!  

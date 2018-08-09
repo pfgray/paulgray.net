@@ -28,9 +28,9 @@ class BlogPostTemplate extends React.Component {
         <div className="post-title">
           <h1>{post.frontmatter.title}</h1>
           <div className="meta">
-            {post.frontmatter.date}
+            <div className="date">{post.frontmatter.date}</div>
+            {post.frontmatter.draft ? <div className="draft-tag">draft</div> : null}
           </div>
-          {post.frontmatter.draft ? <div className="draft-tag">draft</div> : null}
           {post.frontmatter.tags.map(tag => <ColoredTag tag={tag} />)}
         </div>
         <div  className="post-body" dangerouslySetInnerHTML={{ __html: post.html }} />

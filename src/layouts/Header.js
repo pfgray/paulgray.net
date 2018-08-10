@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from "gatsby-link";
+import me from '../img/me.jpeg';
 
 export default function({location: {pathname}}) {
 
@@ -8,7 +9,11 @@ export default function({location: {pathname}}) {
   }
   return (
     <div className="header">
-      <h1 className="logo-header">paul<span className="accent">gray</span>.net</h1>
+      <h1 className="logo-header">
+        {/* <img src={me} /> */}
+        <img src='/static/me_200.75a5cef9.jpg' />
+        <div>paul<span className="accent">gray</span>.net</div>
+      </h1>
       <ul className="links">
         <li><Link to='/' className={pathname !== '/me' && !isRef(pathname) ? 'active' : ''}>blog</Link></li>
         <li><Link to='/notes' className={isRef(pathname) ? 'active' : ''}>notes</Link></li>

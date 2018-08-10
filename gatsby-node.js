@@ -66,7 +66,7 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
       result.data.allMarkdownRemark.edges.forEach(edge => {
         // console.log('creating page for: ', JSON.stringify(, null, 2));
         const tagListTemplate = path.resolve(`src/templates/tag.js`);
-        const tags = edge.node.frontmatter ? edge.node.frontmatter.tags : [];
+        const tags = edge.node.frontmatter && edge.node.frontmatter.tags ? edge.node.frontmatter.tags : [];
         tags.forEach(tag => {
           createPage({
             path: `/tag/${tag}`, // required

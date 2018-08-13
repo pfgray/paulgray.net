@@ -56,7 +56,7 @@ const projects = [{
 // }
 ];
 
-const subtitle =  "I love building products; I do it in my free time. Here's a collection of open-source projects I've made over the years. All are available for free (as in speech)."
+const subtitle =  "I love building products that are simple and do one thing very well. Here's a collection of specialized open-source projects I've made over the years. All are available for free (as in speech)."
 
 export default class Me extends React.Component {
   constructor() {
@@ -88,15 +88,6 @@ export default class Me extends React.Component {
           <meta property="og:title" content="Paul Gray" />
           <meta name="description" property="og:description" content="Paul's projects" />
         </Helmet>
-        <div className="me-header">
-          <img src={me}/>
-          <h1>Paul Gray</h1>
-          <div className="link-container">
-            <a className="link" href="https://www.github.com/pfgray">github</a>
-            <a className="link" href="https://www.twitter.com/@PaulGrizzay">twitter</a>
-            <a className="link" href="https://www.instagram.com/paulfgray">instagram</a>
-          </div>
-        </div>
         <div className='projects'>
           <h2>Projects</h2>
           <div className="sub">{subtitle}</div>

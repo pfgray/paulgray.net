@@ -37,8 +37,13 @@ body {
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
-.post{
+.post {
   margin-top: 0.5rem;
+  .subtitle {
+    font-weight: normal;
+    font-style: italic;
+    color: #777;
+  }
 }
 .post .post-title h1 {
   margin-bottom: 0;

@@ -1,9 +1,9 @@
 ---
 title:  Chainable Components
 subtitle: A composable API for reusable React components
-date: "2018-08-30T00:00:00.000Z"
+date: "2018-09-04T00:00:00.000Z"
 layout: post
-draft: true
+draft: false
 tags:
   - javascript
   - higher order components
@@ -15,7 +15,7 @@ The easiest way to write [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_your
 
 ## The Essence of reusable React components
 
-The essence of HOCs and Render Props is to provide a value, and abstract the process of producing and maintaining that value. Take this `WithAuthentication` render prop for example:
+The essence of HOCs and Render Props is to provide a value, and abstract the process of producing and maintaining that value. Take this `js±WithAuthentication` render prop for example:
 
 ```jsx
 <WithAuthentication>
@@ -97,7 +97,7 @@ we have:
 withConsumer.render(value => <span>{value}</span>);
 ```
 
-These seem quite similar, so why convert a render prop to a chainable component in the first place? The usefulness of a chainable component, is that we don't need to provide the view right away. We can store it in a variable, return it from a function, transform the value inside or even _compose_ them with other chainables!
+These seem quite similar, so why convert a render prop to a chainable component in the first place? The usefulness of chainable components, is that we don't need to provide the view right away. We can store it in a variable, return it from a function, transform the value inside or even _compose_ them with other chainables!
 
 ## map
 
@@ -139,7 +139,7 @@ The `chain` method is quite similar to `map`, but instead of returning just any 
 
 ## Do
 
-If you've noticed, our chained anonymous functions are _still_ subject to nesting for every "link" in the chain (although it's much better than with Render Props). Unfortunately, there's nothing that the language affords us (This was also true with Promises, until [aync/await](https://gist.github.com/MaiaVictor/bc0c02b6d1fbc7e3dbae838fb1376c80)).
+If you've noticed, our chained anonymous functions are _still_ subject to nesting for every "link" in the chain (although it's much better than with Render Props). Unfortunately, there's nothing that the language affords us to solve this problem (This was also true with Promises, until [aync/await](https://gist.github.com/MaiaVictor/bc0c02b6d1fbc7e3dbae838fb1376c80)).
 
 The static `Do` method can help alleviate this nesting.
 
@@ -163,6 +163,6 @@ withThreeCounters.render(({outer, inner, middle}) =>
 
 `Do` takes care of calling the necessary `chain` and `map` methods, keeping track of the contextual values to pass to our anonymous functions. The last function is passed to `map`, and whatever value is returned will be the ultimate value inside the final chainable.
 
-If you feel that this API seems oddly familiar, that's because it should. This pattern appears often during functional programming, and it's called the [_monad_](https://www.youtube.com/watch?v=9QveBbn7t_c) pattern. Sometimes the "chain" function is called `then` (for promises), and `flatMap` (for arrays), but it's still the same pattern. We chose the name `chain` to be compatible with the [fantasy-land](https://github.com/fantasyland/fantasy-land#monad) specification for functional programming structures. This means that chainable components are compatible with all fantasy-land libraries (most notably, Rambda).
+If you feel that this API seems oddly familiar, that's because it should. This pattern appears often during functional programming, and it's called the [_monad_](https://www.youtube.com/watch?v=9QveBbn7t_c) pattern. Sometimes the "chain" function is called `then` (for promises), and `flatMap` (for arrays), but it's still the same pattern. We chose the name `chain` to be compatible with the [fantasy-land](https://github.com/fantasyland/fantasy-land#monad) specification for functional programming structures. This means that chainable components are compatible with all fantasy-land libraries (most notably, [Ramda](https://ramdajs.com/)).
 
 Utilizing advanced functional patterns gives us some extra composability over plain Render Props and HOCs. In your next project, consider giving [Chainable Components](https://github.com/pfgray/chainable-components) a whirl when writing reusbale React code.

@@ -52,7 +52,7 @@ module.exports = {
           },{
             resolve: `gatsby-remark-prismjs`,
             options: {
-              inlineCodeMarker: null,
+              inlineCodeMarker: '±',
             }
           },
           `gatsby-remark-autolink-headers`

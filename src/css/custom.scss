@@ -34,14 +34,15 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
+.subtitle {
+  font-weight: normal;
+  font-style: italic;
+  color: #777;
+}
+
 .post,
 .note {
   margin-top: 0.5rem;
-  .subtitle {
-    font-weight: normal;
-    font-style: italic;
-    color: #777;
-  }
   .post-title,
   .note-title {
     h1 {
@@ -108,7 +109,7 @@ a:focus {
 }
 
 .small-blog-post .date {
-  color: #999;
+  color: #777;
   font-size: 0.9em;
 }
 
@@ -256,15 +257,11 @@ blockquote {
 }
 
 code {
-  padding-left: 0.25rem;
-  padding-right: 0.25rem;
-  &::after {
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+  &::before,&::after {
     content: "";
   }
-}
-
-code::after {
-  content: "";
 }
 
 .embedVideoIframe {

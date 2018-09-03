@@ -6,8 +6,24 @@ export default class Note extends React.Component {
   render() {
 
     const { title, subtitle, tags, date, draft } = this.props.data.markdownRemark.frontmatter;
+
+    const ogTags = tags.map(t => ({
+      property: "og:article:tag",
+      content: t
+    }));
     return (
       <div className="note">
+        <Helmet
+          title={title}
+          meta={[
+            { name: "description", content: subtitle },
+            { name: "keywords", content: tags.join(", ") },
+            { property: "og:type", content: "article"},
+            { property: "og:description", content: subtitle },
+            // { property: "og:article:published_time", content: post.frontmatter.date },
+            ...ogTags
+          ]}
+        />
         <div className="note-title">
           <h1>{title}</h1>
           <h4 className="subtitle">{subtitle}</h4>

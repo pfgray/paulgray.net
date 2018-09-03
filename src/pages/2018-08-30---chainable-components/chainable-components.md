@@ -1,5 +1,5 @@
 ---
-title:  Chainable Components.
+title:  Chainable Components
 subtitle: A composable API for reusable React components
 date: "2018-08-30T00:00:00.000Z"
 layout: post

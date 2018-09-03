@@ -49,8 +49,6 @@ exports.createPages = ({ graphql, boundActionCreators }) => {
           })
         }
         if(edge.node.frontmatter.layout === 'note'){
-          console.log('got a markdown note file!!!:');
-          console.log('Created a notes page: ', edge.node);
           createPage({
             path: edge.node.fields.slug, // required
             component: slash(refTemplate),
@@ -109,7 +107,6 @@ exports.onCreateNode = ({ node, boundActionCreators, getNode }) => {
 
 const generateSlug = (fullPath, note) => {
   const dirName = path.basename(path.dirname(fullPath));
-  console.log('###Testing fullpath: ', fullPath, ' and got: ', dirName.indexOf('/notes/'));
   if(fullPath.indexOf('/notes/') === -1) {
     return `/${_.kebabCase(dirName.split(`---`)[1])}/`;
   } else {

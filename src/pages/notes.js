@@ -53,20 +53,26 @@ export const pageQuery = graphql`
         }
       }
     }
-    allJsFrontmatter (sort: {order:DESC,fields:[data___date]}, filter: { data: { draft: { eq: false }, format: { eq: "note" }}}) {
+    allJsFrontmatter (sort: {order:DESC,fields:[data___date]}, filter: { data: { draft: { eq: false }, layout: { eq: "note" }}}) {
       edges {
         node {
           fields {slug}
           data {
             title
             date(formatString: "MMMM DD, YYYY")
-            format
+            layout
           }
         }
       }
     }
   }
 `
+
+
+// fields {slug}
+
+
+
 
 // {
 //   allSitePage(filter: { path: { regex: "\/reference\/"}}) {

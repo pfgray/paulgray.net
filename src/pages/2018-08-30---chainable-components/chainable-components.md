@@ -45,6 +45,10 @@ It would be optimal if we could find a way to combine the succinctness of HOCs w
 
 [Chainable Components](https://github.com/pfgray/chainable-components) is an attempt to fill this need, using advanced functional programming techniques.
 
+Here's me talking to the React DC meetup group about this library.
+
+`youtube: upUp34fVnvY`
+
 ## A Chainable API
 
 Just like Render Props and HOCs, a chainable component abstracts over the logic to produce a value that can be used to render React views. The easiest way to create a chainable component is to use `of`:

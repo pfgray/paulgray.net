@@ -1,5 +1,13 @@
-
-#Scalaz imports
+---
+title:  Scalaz Imports
+subtitle: those imports you always need but can never remember.
+date: "2018-08-30T00:00:00.000Z"
+layout: note
+draft: false
+tags:
+  - scala
+  - scalaz
+---
 
 ##Patterns
 

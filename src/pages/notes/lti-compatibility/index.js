@@ -254,6 +254,6 @@ export default props => (
 exports.data = {
   title: 'Lti Compatibility Table',
   date:  '2017-08-22T00:34:56.939Z',
-  format: 'note',
+  layout: 'note',
   draft: false
 }

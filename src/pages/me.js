@@ -48,13 +48,7 @@ const projects = [{
   img: link_md,
   img_big: link_big,
   github: 'https://github.com/pfgray/link'
-},
-// {
-//   name: 'TypescriptX',
-//   desc: " A Typescript extension library which contains an assortment of type-safe functional programming features",
-//   github: 'https://github.com/pfgray/typescriptx'
-// }
-];
+}];
 
 const subtitle =  "I love building products that are simple and do one thing very well. Here's a collection of specialized open-source projects I've made over the years. All are available for free (as in speech)."
 

@@ -19,7 +19,7 @@ A mark of a good software developer is being able to recognize patterns in code 
 
 Let's say we have a component that displays the current user's profile. When it mounts, it fires an xhr request to fetch a user's details, and then displays them:
 
-```
+```javascript
 class UserProfile extends Component {
   constructor() {
     this.state = {
@@ -52,7 +52,7 @@ class UserProfile extends Component {
 
 Let's design another similar component for fetching and displaying a list of tweets. This one will do the same thing: when it mounts, it fires an xhr request to fetch some tweets, and then displays them:
 
-```
+```javascript
 class TweetList extends Component {
   constructor() {
     this.state = {
@@ -98,7 +98,7 @@ Let's take a step back for a second and examine these two components.
 ## Step 2. Put the common parts in a function.
 Let's take the common elements, and put them into a function:
 
-```
+```javascript
 const withFetch = () => {
 	return class WithFetch extends Component {
 	  constructor() {
@@ -135,7 +135,7 @@ const withFetch = () => {
 
 Now that we have the similar code in a function, let's make the different code (the url and view) parameters of that function:
 
-```
+```javascript
 const withFetch = (url) => (View) => {
 	return class WithFetch extends Component {
 	  constructor() {
@@ -173,7 +173,7 @@ The double parameter list (`(url) => (View) =>` instead of `(url, View) =>`) mig
 
 Now, let's re-implement our two components using this shiny new HOC:
 
-```
+```javascript
 const UserProfile = 
   withFetch('/api/user)(props => (
     <div>{props.data.username}</div>

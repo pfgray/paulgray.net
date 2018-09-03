@@ -14,6 +14,7 @@
     "gatsby-plugin-sharp": "^1.0.1",
     "gatsby-remark-autolink-headers": "^1.0.1",
     "gatsby-remark-copy-linked-files": "^1.0.1",
+    "gatsby-remark-embed-video": "^1.4.0",
     "gatsby-remark-images": "^1.2.0",
     "gatsby-remark-prismjs": "^1.2.0",
     "gatsby-remark-responsive-iframe": "^1.0.1",

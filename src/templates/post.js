@@ -27,6 +27,7 @@ class BlogPostTemplate extends React.Component {
         />
         <div className="post-title">
           <h1>{post.frontmatter.title}</h1>
+          <h4 className="subtitle">{post.frontmatter.subtitle}</h4>
           <div className="meta">
             <div className="date">{post.frontmatter.date}</div>
             {post.frontmatter.draft ? <div className="draft-tag">draft</div> : null}

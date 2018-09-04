@@ -25,7 +25,7 @@ The essence of HOCs and Render Props is to provide a value, and abstract the pro
 </WithAuthentication>
 ```
 
-`WithAuthentication` will either produce the current user that is logged in, or render a login screen. This render prop can be used anywhere an application needs to define a view that should only be visible to logged in users. This render prop abstracts away the code that's used to produce a `user` object. In order to access this value, we provide a callback which takes this value as a parameter. Using multiple Render Props together can get verbose and clumsy, leading to heavily nested code.
+`WithAuthentication` will either produce the current user that is logged in, or render a login screen. This render prop can be used anywhere an application needs to define a view that should only be visible to logged in users. In a sense, it abstracts away the logic that's used to produce a `user` value, and it "wraps" it in a render prop container. In order to access this value, we provide a callback which takes this value as a parameter. Using multiple Render Props together can get verbose and clumsy, leading to heavily nested code.
 
 Here's another example of the `withState` HOC from [recompose](https://github.com/acdlite/recompose):
 

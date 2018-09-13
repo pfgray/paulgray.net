@@ -9,58 +9,84 @@ tags:
   - scalaz
 ---
 
-##Patterns
+## The Scalaz import Pattern:
+
+Enrichment methods for typeclasses are located in:
+
+```scala
+import scalaz.syntax.{typeclass}._
+```
+
+Enrichment for standard libs are located in:
+```scala
+import scalaz.syntax.std.{std-class}._
+```
 
 Typeclasses for std library classes are usually located in:
 
 ```scala
-import scalaz.std._
+import scalaz.std.{std-class}._
 ```
 
-Enrichment methods for typeclasses are usually located in:
+## Id
 
-```scala
-import scalaz.syntax._
 ```
+import scalaz.Id.Id
 
-
-
+val string: Id[String] = "adsf"
+```
 
 ## Equals
 
-import `EqualOps` with:
+In order to use `===`, you need the equals syntax, and an `Equal[A]` instance, where `A` is the type you're comparing.
 
 ```scala
-import scalaz.syntax.equal._
+import scalaz.syntax.equal._ // for ===
+import scalaz.std.string._   // for Equal[String]
+
+"foo" === "bar"
 ```
 
-    1 === 1
-    2 =/= 1
-    
-In order to use the `===` with two variables of type `T`, you must have an instance of `Equal[T]`
-
-import individual `Equal` typeclasses with:
+If you're comparing a generic type, such as `Option`, you'll need an instance of `Equal[Option[A]]`. The implicit Option equals build can make this easy if you have an instance of `Equal[A]`.
 
 ```scala
-import scalaz.std.anyVal._
-import scalaz.std.option._
+import scalaz.syntax.equal._ // for ===
+import scalaz.std.string._   // for Equal[String]
+import scalaz.std.option._   // for optionEqual[A]
+
+Option("foo") === Option("bar")
 ```
-the `anyVal._` contains a `Equal[Any]` and the `option._` contains a `Equal[Option[A]]` for any `A` that also has a `Equal[A]`
 
 ## Disjunction
+
 ```scala
+import scalaz.syntax.either._
+
 1.right
 "Error".left
 ```
 
-import with:  
-
-```scala
-import scalaz.syntax.either._
-```
-
 ## Semigroup
 
+for `|+|`, you need the semigroup syntax, and a `Semigroup[A]`, where `A` is the type you're adding.
+
 ```scala
-import scalaz.syntax.semigroup._
+import scalaz.syntax.semigroup._  // for |+|
+import scalaz.std.string._        // for Semigroup[String]
+
+"foo" |+| "bar"
+```
+
+## Traverse
+
+For `.traverse`, you need the `traverse` syntax, a `Traverse[F]`, where `F` is the collection type, and an `Applicative[G]`, where `G` is the type you're traversing into.
+
+```scala
+import scalaz.syntax.traverse._  // for .traverse
+import scalaz.std.list._         // for Traverse[List]
+import scalaz.std.option._       // for Applicative[Option]
+
+List(1, 2, 3).traverse {
+  a => Option(a)
+}
 ```

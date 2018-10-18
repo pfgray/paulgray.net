@@ -90,3 +90,19 @@ List(1, 2, 3).traverse {
   a => Option(a)
 }
 ```
+
+## Suml
+
+For `.suml`, you need the `foldable` syntax, a `Foldable[F]`  where `F` is the type of the collection you're squashing, and a `Monoid[A]`, where `A` is the type inside your foldable.
+
+```scala
+import scalaz.syntax.foldable._  // for .suml
+import scalaz.std.list._         // for Foldable[List]
+import scalaz.std.string._       // for Monoid[String]
+
+List("foo", "bar", "baz").suml   // "foobarbaz"
+
+import scalaz.std.option._       // for Monoid[Option]
+
+List(Some("foo"), None, Some("baz")).suml // Some("foobaz")
+```

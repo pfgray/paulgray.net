@@ -61,7 +61,6 @@ body {
       }
     }
   }
-  
 }
 
 .post-body {
@@ -259,12 +258,35 @@ blockquote {
 code {
   padding-left: 0.25rem !important;
   padding-right: 0.25rem !important;
-  &::before,&::after {
+  &::before,
+  &::after {
     content: "";
   }
+}
+
+pre>code {
+  padding-left: 0 !important;
 }
 
 .embedVideoIframe {
   margin: 0 auto;
   display: block;
+}
+
+.post-body {
+  li {
+    margin-bottom: .25rem;
+  }
+  ol {
+    list-style: none;
+    counter-reset: my-awesome-counter;
+    li {
+      counter-increment: my-awesome-counter;
+      &::before {
+        content: counter(my-awesome-counter) ". ";
+        color: $color-primary;
+        font-weight: bold;
+      }
+    }
+  }
 }

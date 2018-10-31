@@ -48,9 +48,9 @@ As an example, Instead of returning `[T, T => void]`, The `useState` hook would 
 ## Rendering
 Values of type `ReactHook` would have a `.map` function that modifies the value inside. Since functional components can return a `ReactHook<ReactNode>`, and the `useState` hook returns a `ReactNode<[T, T => void]>`. In order to use the `useState` hook to render a view, you'd need to map the value inside into a `ReactNode`:
 
-```js
-function App() {
-  return useState(0)
+```jsx
+const App = () =>
+  useState(0)
     .map(([count, setCount]) => (
       <div>
         {count}
@@ -59,7 +59,6 @@ function App() {
         </button>
       </div>
     ))
-}
 
 ReactDom.render(<App />, document.getElementById('main'))
 ```

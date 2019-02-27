@@ -7,7 +7,7 @@ const dot = entry => val => val[entry];
 
 import '../css/typography.css';
 import '../css/custom.scss';
-import 'prismjs/themes/prism-solarizedlight.css';
+// import 'prismjs/themes/prism-solarizedlight.css';
 
 export default class Index extends React.Component {
   render() {
@@ -16,15 +16,13 @@ export default class Index extends React.Component {
     return (
       <div className="index">
         <Helmet>
-          <title>The Gray Side of Software</title>
+          <title>paulgray.net</title>
           <meta charset="utf-8" />
           {/* Facebook Open Graph */}
           <meta property="og:url" content="https://paulgray.net" />
           <meta property="og:title" content="The Gray Side of Software" />
           <meta name="description" property="og:description" content="Paul Gray is a software engineer, and sometimes he writes some stuff." />
         </Helmet>
-        <h1>The Gray Side of Software</h1>
-        <p>I'm a software engineer, and sometimes I write some stuff.</p>
         {posts.map(post => <PostSummary key={post.fields.slug} post={post} />)}
       </div>
     )

@@ -2,10 +2,10 @@ module.exports = {
   siteMetadata: {
     title: `The Gray side of Software`,
     author: `@PaulGrizzay`,
-    description: `I'm a software engineer, and sometimes I write some stuff.`,
+    description: `I'm a software engineer, and sometimes I write some stuff.`
   },
   mapping: {
-    "MarkdownRemark.frontmatter.author": `AuthorYaml`,
+    "MarkdownRemark.frontmatter.author": `AuthorYaml`
   },
   pathPrefix: "/",
   plugins: [
@@ -13,8 +13,8 @@ module.exports = {
       resolve: `gatsby-source-filesystem`,
       options: {
         path: `${__dirname}/src/pages`,
-        name: `pages`,
-      },
+        name: `pages`
+      }
     },
     `gatsby-transformer-sharp`,
     {
@@ -24,8 +24,8 @@ module.exports = {
           {
             resolve: `gatsby-remark-images`,
             options: {
-              maxWidth: 740,
-            },
+              maxWidth: 740
+            }
           },
           {
             resolve: "gatsby-remark-embed-video",
@@ -40,24 +40,25 @@ module.exports = {
           {
             resolve: `gatsby-remark-responsive-iframe`,
             options: {
-              wrapperStyle: `margin-bottom: 1.0725rem`,
-            },
+              wrapperStyle: `margin-bottom: 1.0725rem`
+            }
           },
           `gatsby-remark-copy-linked-files`,
           {
             resolve: `gatsby-remark-smartypants`,
             options: {
-              dashes: `oldschool`,
-            },
-          },{
+              dashes: `oldschool`
+            }
+          },
+          {
             resolve: `gatsby-remark-prismjs`,
             options: {
-              inlineCodeMarker: '±',
+              inlineCodeMarker: "±"
             }
           },
           `gatsby-remark-autolink-headers`
-        ],
-      },
+        ]
+      }
     },
     `gatsby-transformer-yaml`,
     `gatsby-plugin-sharp`,
@@ -66,5 +67,5 @@ module.exports = {
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-sass`,
     `gatsby-transformer-javascript-static-exports`
-  ],
-}
+  ]
+};

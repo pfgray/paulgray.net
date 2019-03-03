@@ -1,4 +1,4 @@
-@import './constants.scss';
+@import "./constants.scss";
 // $small: "only screen and (max-width: 420px)";
 // $small: "only screen and (max-width: 320px)";
 
@@ -37,7 +37,7 @@
       width: 100px;
       margin: 0 auto;
       border-radius: 0.5rem;
-      display:block;
+      display: block;
     }
   }
 }
@@ -47,6 +47,7 @@
   flex-grow: 1;
   width: calc(100% - 200px);
   padding: 1em;
+  padding-left: 1.5rem;
   padding-right: 6rem;
   margin-top: 1rem;
 
@@ -105,12 +106,13 @@
       }
     }
 
-    h1{
+    h1 {
       flex-grow: 1;
     }
-    h1, ul {
+    h1,
+    ul {
       display: inline-block;
-      margin:0;
+      margin: 0;
     }
     ul {
       margin-top: 0.5em;
@@ -137,18 +139,20 @@
 
 @mixin tag() {
   display: inline-block;
-  padding: .25em .4em;
+  padding: 0.25em 0.4em;
   font-size: 75%;
   line-height: 1;
   color: #fff;
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
-  border-radius: .25rem;
+  border-radius: 0.25rem;
   font-weight: 700;
 }
 
-.draft-tag {
+.post .meta .draft-tag {
+  font-size: 125% !important;
+  border-radius: 0 !important;
   text-transform: uppercase;
   background-color: #d9534f;
   font-weight: 700;
@@ -165,4 +169,19 @@
 
 pre code {
   padding: 0;
+}
+
+blockquote {
+  background-color: #eee;
+  padding: 1em;
+  margin-left: 0;
+  margin-right: 0;
+
+  > *, > .gatsby-highlight {
+    margin-bottom: 0.5rem;
+  }
+
+  @media #{$small} {
+    margin-left: 0;
+  }
 }

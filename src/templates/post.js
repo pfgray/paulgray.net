@@ -1,7 +1,7 @@
 import React from "react";
 import Helmet from "react-helmet";
-import Link from "gatsby-link";
-import ColoredTag from './ColoredTag';
+import ColoredTag from "./ColoredTag";
+import { graphql } from "gatsby";
 
 class BlogPostTemplate extends React.Component {
   render() {
@@ -19,7 +19,7 @@ class BlogPostTemplate extends React.Component {
           meta={[
             { name: "description", content: post.frontmatter.subtitle },
             { name: "keywords", content: post.frontmatter.tags.join(", ") },
-            { property: "og:type", content: "article"},
+            { property: "og:type", content: "article" },
             { property: "og:description", content: post.frontmatter.subtitle },
             // { property: "og:article:published_time", content: post.frontmatter.date },
             ...ogTags
@@ -30,17 +30,24 @@ class BlogPostTemplate extends React.Component {
           <h4 className="subtitle">{post.frontmatter.subtitle}</h4>
           <div className="meta">
             <div className="date">{post.frontmatter.date}</div>
-            {post.frontmatter.draft ? <div className="draft-tag">draft</div> : null}
+            {post.frontmatter.draft ? (
+              <div className="draft-tag">draft</div>
+            ) : null}
           </div>
-          {post.frontmatter.tags.map(tag => <ColoredTag tag={tag} />)}
+          {post.frontmatter.tags.map(tag => (
+            <ColoredTag tag={tag} />
+          ))}
         </div>
-        <div  className="post-body" dangerouslySetInnerHTML={{ __html: post.html }} />
+        <div
+          className="post-body"
+          dangerouslySetInnerHTML={{ __html: post.html }}
+        />
       </div>
-    )
+    );
   }
 }
 
-export default BlogPostTemplate
+export default BlogPostTemplate;
 
 export const pageQuery = graphql`
   query BlogPostBySlug($slug: String!) {
@@ -58,4 +65,4 @@ export const pageQuery = graphql`
       }
     }
   }
-`
+`;

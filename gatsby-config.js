@@ -66,6 +66,7 @@ module.exports = {
     `gatsby-plugin-glamor`,
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-sass`,
-    `gatsby-transformer-javascript-static-exports`
+    `gatsby-transformer-javascript-frontmatter`,
+    `gatsby-plugin-layout`
   ]
 };

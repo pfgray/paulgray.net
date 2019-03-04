@@ -1,17 +1,17 @@
 import React from "react";
-import Link from "gatsby-link";
 import Helmet from "react-helmet";
-import PostSummary from '../templates/PostSummary.js';
+import PostSummary from "../templates/PostSummary.js";
+import { graphql } from "gatsby";
+
+import "../css/typography.css";
+import "../css/custom.scss";
+// import 'prismjs/themes/prism-solarizedlight.css';
 
 const dot = entry => val => val[entry];
 
-import '../css/typography.css';
-import '../css/custom.scss';
-// import 'prismjs/themes/prism-solarizedlight.css';
-
 export default class Index extends React.Component {
   render() {
-    const posts = this.props.data.allMarkdownRemark.edges.map(dot('node'));
+    const posts = this.props.data.allMarkdownRemark.edges.map(dot("node"));
 
     return (
       <div className="index">
@@ -21,20 +21,31 @@ export default class Index extends React.Component {
           {/* Facebook Open Graph */}
           <meta property="og:url" content="https://paulgray.net" />
           <meta property="og:title" content="The Gray Side of Software" />
-          <meta name="description" property="og:description" content="Paul Gray is a software engineer, and sometimes he writes some stuff." />
+          <meta
+            name="description"
+            property="og:description"
+            content="Paul Gray is a software engineer, and sometimes he writes some stuff."
+          />
         </Helmet>
-        {posts.map(post => <PostSummary key={post.fields.slug} post={post} />)}
+        {posts.map(post => (
+          <PostSummary key={post.fields.slug} post={post} />
+        ))}
       </div>
-    )
+    );
   }
 }
 
 export const pageQuery = graphql`
   query AllMarkdown {
-    allMarkdownRemark(sort: {order:DESC,fields:[frontmatter___date]}, filter: { frontmatter: { draft: { ne: true }, layout: { eq: "post" }}}) {
+    allMarkdownRemark(
+      sort: { order: DESC, fields: [frontmatter___date] }
+      filter: { frontmatter: { draft: { ne: true }, layout: { eq: "post" } } }
+    ) {
       edges {
         node {
-          fields {slug}
+          fields {
+            slug
+          }
           html
           frontmatter {
             title
@@ -45,4 +56,4 @@ export const pageQuery = graphql`
       }
     }
   }
-`
+`;

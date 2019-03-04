@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from "gatsby-link";
-import me from '../img/me_200.jpg';
+import me from '../img/me.png';
 
 // todo: make active link rendering better...
 
@@ -14,7 +14,7 @@ export default function ({ location: { pathname } }) {
     <div className="sidebar">
       <div className="sidebar-inner">
         <h1 className="logo-header">
-          <img src={me} className="sidebar-profile-pic" />
+          <img src={me} className="sidebar-profile-pic" alt="my face"/>
           paul<span className="accent">gray</span>.net
         </h1>
         <ul className="links">

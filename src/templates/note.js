@@ -1,11 +1,14 @@
-import React from "react"
-import Link from "gatsby-link"
-import Helmet from "react-helmet"
+import React from "react";
+import Helmet from "react-helmet";
+import { graphql } from "gatsby";
 
 export default class Note extends React.Component {
   render() {
-
-    const { title, subtitle, tags, date, draft } = this.props.data.markdownRemark.frontmatter;
+    const {
+      title,
+      subtitle,
+      tags
+    } = this.props.data.markdownRemark.frontmatter;
 
     const ogTags = tags.map(t => ({
       property: "og:article:tag",
@@ -18,7 +21,7 @@ export default class Note extends React.Component {
           meta={[
             { name: "description", content: subtitle },
             { name: "keywords", content: tags.join(", ") },
-            { property: "og:type", content: "article"},
+            { property: "og:type", content: "article" },
             { property: "og:description", content: subtitle },
             // { property: "og:article:published_time", content: post.frontmatter.date },
             ...ogTags
@@ -28,7 +31,12 @@ export default class Note extends React.Component {
           <h1>{title}</h1>
           <h4 className="subtitle">{subtitle}</h4>
         </div>
-        <div className="post-body" dangerouslySetInnerHTML={{ __html: this.props.data.markdownRemark.html }} />
+        <div
+          className="post-body"
+          dangerouslySetInnerHTML={{
+            __html: this.props.data.markdownRemark.html
+          }}
+        />
         {/* <pre>{JSON.stringify(this.props.data.markdownRemark, null, 2)}</pre> */}
       </div>
     );
@@ -51,4 +59,4 @@ export const pageQuery = graphql`
       }
     }
   }
-`
+`;

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from "gatsby-link";
-import me from '../img/me.jpeg';
+import me from '../img/me.png';
 
 export default function({location: {pathname}}) {
 
@@ -10,8 +10,8 @@ export default function({location: {pathname}}) {
   return (
     <div className="header">
       <h1 className="logo-header">
-        {/* <img src={me} /> */}
-        <img src='/static/me_200.75a5cef9.jpg' />
+        <img src={me} alt="my face" />
+        {/* <img src='/static/me_200.75a5cef9.jpg' /> */}
         <div>paul<span className="accent">gray</span>.net</div>
       </h1>
       <ul className="links">

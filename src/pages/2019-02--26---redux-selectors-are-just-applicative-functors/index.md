@@ -55,7 +55,7 @@ function map<State, A, B>(
 }
 ```
 
-This function takes a selector that selects an `A` and a function from `A => B` (a to b), and returns a selector that selects a `B`. This function must work for any type of state, any type of `A` and any type of `B`. Take some time to try and implement this function (You'll likely learn something in the process)! If you get stuck, come back and look at an example usage for some inspiration. _Hint: start with what you have to return, and work backwards from there._
+This function takes a selector that selects an `A` and a function from `A => B` (a to b), and returns a selector that selects a `B`. This function must work for any type of state, any type of `A` and any type of `B`. Take some time to try and implement this function (You'll likely learn something in the process)! If you get stuck, come back and look at an example usage for some inspiration. If you're still stuck, scroll down to the "typeclasses" section to see the implementation. _Hint: start with what you have to return, and work backwards from there._
 
 The key is to remember that mapping over a selector just applies the selected function on the result of the selector.
 
@@ -88,13 +88,13 @@ Suppose that we wanted a new selector, which only selected the count of all post
 const postCountSelector: Selector<number> = state => state.posts.length
 ```
 
-This would duplicate the logic for getting the posts out of state (a trivial example, for simplicity). Instead, we could reuse the `postsSelector`, and mapping over the result of that selector, returning just the size of the posts array:
+This would duplicate the logic for getting the posts out of state (a trivial example, for simplicity). Instead, we could reuse the `postsSelector`, and map over the result of that selector, returning just the size of the posts array:
 
 ```typescript
 const postCountSelector = map(postsSelector, posts => posts.length);
 ```
 
-See the second parameter to `map`? That's the callback function that takes the result of the `postsSelector` and returns something else, thus changing or 'mapping' the value inside. We had a `Selector<Post[]>` and we mapped that into a `Selector<number>`.
+See the second parameter to `map`? That's the callback function that takes the result of the `postsSelector` and returns something else, thus 'mapping' the value inside. We had a `Selector<..., Post[]>` and we mapped that into a `Selector<.., number>`.
 
 ## Selectors are Applicatives
 
@@ -113,11 +113,11 @@ function ap<State, A, B>(
 
 Think on this for a little bit: It takes two wrappers, `Selector<..., A>` and `Selector<..., A => B>` but yet only returns one `Selector<..., B>`. So this `ap` function must include a way to _compose_ selectors! With that information, try to implement this `ap` function which combines two selectors. Remember, start with the return type and work backwards from there. I'll include the correct implementation at the end, in case you get stuck.
 
-How are applicatives useful? Using the `ap` and `map` methods, we can derive another method that maps over two wrappers of anything simultaneously,  For example, given a wrapper type (`Wrapper`), we can make a method `map2` which takes two wrappers, `Wrapper<A>` and `Wrapper<B>`, and _composes_ them into a `Wrapper<[A, B]>` ("Wrapper" here, just refers to any applicative type, it could be `Option`, `List`, or even our `Selector`). 
+How are applicatives useful? Using the `ap` and `map` methods, we can derive another method that maps over two wrappers of anything simultaneously,  For example, given a wrapper type (`Wrapper`), we can make a method `combine2` which takes two wrappers, `Wrapper<A>` and `Wrapper<B>`, and _composes_ them into a `Wrapper<[A, B]>` ("Wrapper" here, just refers to any applicative type, it could be `Option`, `List`, or even our `Selector`). 
 
 For selectors, this would look like:
 ```typescript
-function map2<State, A, B>(
+function combine2<State, A, B>(
   aSelector: Selector<State, A>,
   bSelector: Selector<State, B>
 ): Selector<State, [A, B]> {
@@ -126,18 +126,20 @@ function map2<State, A, B>(
 ```
 
 > Hard:  
-> Try to implement `map2` using only our `ap` and `map` functions we built above.
+> Try to implement `combine2` using only our `ap` and `map` functions we built above.
 
-This same strategy can be used to implement `map3`, `map4`, etc, all the way to `mapN`. The nice thing about fp-ts, is that it provides this `mapN` function for us for free (we just need to implement `ap`! This function is called `sequenceT`, and you'd use it like:
+This same strategy can be used to implement `combine3`, `combine4`, etc, all the way to `combineN`. The fp-ts library provides this `combineN` function for us for free (we just need to implement `ap` and `map`! This function is called `sequenceT`, and you'd use it like:
 
 ```typescript
+import { sequenceT } from "fp-ts/lib/Apply";
+
 const abcSelector: Selector<State, [A, B, C]> =
   sequenceT(...)(aSelector, bSelector, cSelector)
 ```
 
 `aSelector`, `bSelector` and `cSelector` are all _composed_ into `abcSelector`! I'll explain the `...` further down.
 
-It turns out this pattern is incredibly powerful, and you have undoubtedly already used this without knowing it. Consider `Promise.all`. what does it's signature look like? It takes a unbound list of promises, and returns promise of a list, thus "_composing_" all the promises in the list:
+It turns out this pattern is incredibly powerful, and **you have undoubtedly already used this without knowing it.** Consider `Promise.all`. what does it's signature look like? It takes a unbound list of promises, and returns promise of a list, thus "_composing_" all the promises in the list:
 
 ```typescript
 const abcPromise = Promise.all([aPromise, bPromise, cPromise])
@@ -153,7 +155,7 @@ The main difference is that `Promise.all` is specialized for promises, but `sequ
 
 ## Typeclasses
 
-In fp-ts, a type is considered an applicative if there exists a static instance of the `Applicative` interface for that type. Instead of having a class implement an interface, you implement all of the methods on a separate object. For our `Selector` type, this looks like:
+In fp-ts, a type is considered an applicative if a static instance of the `Applicative` interface exists for that type. Instead of having a class implement an interface, you implement all of the methods on a separate object. For our `Selector` type, this looks like:
 
 ```typescript
 type Selector<State, A> = (s: State) => A;
@@ -184,13 +186,15 @@ export const selector: Applicative2<URI> = {
 };
 ```
 
-The `selector` constant is an instance of the `Applicative` typeclass, but it's compltely divorced from our `Selector` type itself. This is the definition of a typeclass. Since this object exists, this means we can consider our `Selector` class as an applicative. Whenever a function needs to work for any applicative they simply take an instance of an applicative typeclass, `sequenceT` is an example of such a function, and so if we want to use it with our `Selector` type, we just supply the `selector` typeclass value (filling in the "..." from before):
+The `selector` constant is an instance of the `Applicative` typeclass, but it's completely divorced from our `Selector` type itself; this makes it a "typeclass." While this is a bit more clumsy/verbose than the dot notation you're probably used to (i.e. `foo.bar()`), it has one major benefit; you can define a typeclass for _any_ type, even types that come from a completely different package, including the standard library types (looking at you, promises)! This means that if a library doesn't specify the functor or applicative behavior for their type, you can simply define it on a typeclass, instead of having to wrap the type in another class. 
+
+Since we have access to this `selector` typeclass, this means we can consider our `Selector` class as an applicative. Whenever a function needs to work for any applicative they simply take an instance of an applicative typeclass, `sequenceT` is an example of such a function, and so if we want to use it with our `Selector` type, we just supply the `selector` typeclass value (filling in the "..." from before):
 
 ```typescript
 const abcSelector = sequenceT(selector)(aSelector, bSelector, cSelector)
 ```
 
-This works for _any_ applicative, consider the need to compose many optional values into one optional value:
+This works for _any_ applicative, consider the need to compose many optional values into one optional value. We can just use the `option` typeclass provided by fp-ts:
 
 ```typescript
 import { option } from 'fp-ts/lib/Option'
@@ -198,7 +202,7 @@ import { option } from 'fp-ts/lib/Option'
 const abcOption = sequenceT(option)(aOption, bOption, cOption)
 ```
 
-## CreateSelector from reselect is just map + sequenceT
+## createSelector from reselect is just map + sequenceT
 
 Consider the shape of the `createSelector` method that reselect provides:
 
@@ -213,32 +217,36 @@ createSelector(
 )
 ```
 
-It takes `n` selectors and allows you to _compose_ them, finally providing you with a function to map the selected values into a new selector.
+It takes `n` selectors and allows you to _compose_ them, finally providing you with a function to map the selected values into the value returned from a new selector.
 
-This pattern can be emulated using the `sequenceT` method from fp-ts and the `map` function we implemented above:
+This pattern can be emulated using the `sequenceT` method from fp-ts and the `map` function we implemented above: 
 
 ```typescript
 const mapped = selector.map(
   sequenceT(selector)(
-    aSelector, bSelector, cSelector
+    aSelector,
+    bSelector,
+    cSelector
   ),
   ([a, b, c]) => {
     ...
   }
 );
 ```
+_Remember: `selector` is an instance of our typeclass, not an actual instance of a selector_. _Also note that in the fp-ts example, `a`, `b`, and `c`'s types are properly inferred_.
 
-The reselect version is less characters, but it's implemented specifically for selectors.In the fp-ts example, it was provided for us for free! we just needed to decsribe how two selectors are combined, and the library takes care of the rest for us.
+The reselect version is less characters, but it's implemented specifically for selectors. In the fp-ts example, it was provided for us for free! We just needed to describe how two selectors are combined, and the library takes care of the rest for us.
 
-It can be hard to see these patterns in code you're using and writing. The only advice I can give is to learn as many examples of functors, applicatives, and monads that you can. Don't just read materials, bust out an editor, where you can quickly try out these concepts and verify what you're reading. I'm sure you'd be surprised how quickly you can gain an intuition.
+It can be hard at first to see these patterns in code you're using and writing. The only advice I can give is to learn as many examples of functors, applicatives, and monads that you can. Don't just read materials, bust out an editor, where you can quickly try out these concepts and verify what you're reading. I'm sure you'd be surprised how quickly you can gain an intuition.
 
+One of the biggest benefits that comes from recognizing these patterns is that you might simply find new ways to use your types. For example, if you were only exposed to the reselect library, you might now know that you can turn an array of selectors into a selector of array. If you had an intuition around applicatives, this becomes easier to recognize. 
 
-#### _Notes_
+#### _Notes_:
 
-Here's the implementation for `map2`:
+Here's the implementation for `combine2`:
 
 ```typescript
-function map2<State, A, B>(
+function combine2<State, A, B>(
   aSelector: Selector<State, A>,
   bSelector: Selector<State, B>
 ): Selector<State, [A, B]> {

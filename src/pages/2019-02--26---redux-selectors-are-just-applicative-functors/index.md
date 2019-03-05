@@ -1,9 +1,9 @@
 ---
 title: Redux Selectors are just Applicative Functors
 subtitle: What that means and why it matters.
-date: "2019-02-25T00:00:00.000Z"
+date: "2019-03-04T00:00:00.000Z"
 layout: post
-draft: true
+draft: false
 tags:
   - javascript
   - redux
@@ -24,7 +24,7 @@ Redux selectors are functions from state to some other value. This can be expres
 type Selector<State, A> = (state: State) => A;
 ```
 
-Where `State` is the type of our app state and `A` is the type of value we're selecting out of the state. So, for example, a `Selector<AppState User>` would represent a function that takes `AppState` as it's parameter, and returns a `User`. A `Selector<AppState, Post[]>` represents a function that takes in `AppState` and returns a list of `Post`s.
+Where `State` is the type of our app state and `A` is the type of value we're selecting out of the state. So, for example, a `Selector<AppState, User>` would represent a function that takes `AppState` as it's parameter, and returns a `User`. A `Selector<AppState, Post[]>` represents a function that takes in `AppState` and returns a list of `Post`s.
 
 For example:
 
@@ -211,7 +211,7 @@ createSelector(
   aSelector,
   bSelector,
   cSelector,
-  ([a, b, c]) => {
+  (a, b, c) => {
     ...
   }
 )
@@ -239,7 +239,7 @@ The reselect version is less characters, but it's implemented specifically for s
 
 It can be hard at first to see these patterns in code you're using and writing. The only advice I can give is to learn as many examples of functors, applicatives, and monads that you can. Don't just read materials, bust out an editor, where you can quickly try out these concepts and verify what you're reading. I'm sure you'd be surprised how quickly you can gain an intuition.
 
-One of the biggest benefits that comes from recognizing these patterns is that you might simply find new ways to use your types. For example, if you were only exposed to the reselect library, you might now know that you can turn an array of selectors into a selector of array. If you had an intuition around applicatives, this becomes easier to recognize. 
+One of the biggest benefits that comes from finding these patterns is that you might simply find new ways to use your types. For example, if you were only exposed to the methods that the reselect library provides, you might not realize that you can turn an array of selectors into a selector of array. If you had an intuition around applicatives, this becomes easier to recognize. 
 
 #### _Notes_:
 
@@ -258,4 +258,4 @@ function combine2<State, A, B>(
 }
 ```
 
-You have a `Selector<..., A>`, and a `Selector<..., B>`, and you need to return a `Selector<State, [A, B]>` using only `ap` and `map`. In order to use `ap`, we need a `Selector` that selects a function.
+>! You have a `Selector<..., A>`, and a `Selector<..., B>`, and you need to return a `Selector<State, [A, B]>` using only `ap` and `map`. In order to use `ap`, we need a `Selector` that selects a function. We don't have that, by we can map one of our Selectors into one. Let's try doing 

@@ -24,6 +24,13 @@ module.exports = {
       options: {
         root: __dirname,
         hastPlugins: [[prism, { ignoreMissing: true }]],
+        gatsbyRemarkPlugins: [{
+          resolve: "gatsby-remark-images",
+          options: {
+            maxWidth: 1035,
+            sizeByPixelDensity: true
+          }
+        }]
       },
     },
     `gatsby-transformer-yaml`,

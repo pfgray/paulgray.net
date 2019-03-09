@@ -20,7 +20,7 @@ export default function PostSummary({ post }) {
       </a>
       <div className="subtitle">{post.frontmatter.subtitle}</div>
       <div className="date">{post.frontmatter.date}</div>
-      <div className="description" >{"asdf"}...</div>
+      {/* <div className="description" >{"asdf"}...</div> */}
     </div>
   );
 }

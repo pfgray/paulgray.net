@@ -4,8 +4,8 @@ import { graphql } from "gatsby";
 
 export default class Notes extends React.Component {
   render() {
-    const md = this.props.data.allMarkdownRemark
-      ? this.props.data.allMarkdownRemark.edges
+    const md = this.props.data.allMdx
+      ? this.props.data.allMdx.edges
       : [];
     const js = this.props.data.allJsFrontmatter
       ? this.props.data.allJsFrontmatter.edges
@@ -51,7 +51,7 @@ export default class Notes extends React.Component {
 
 export const pageQuery = graphql`
   query AllMarkdownRefs {
-    allMarkdownRemark(
+    allMdx(
       sort: { order: DESC, fields: [frontmatter___date] }
       filter: { frontmatter: { draft: { ne: true }, layout: { eq: "note" } } }
     ) {
@@ -60,7 +60,7 @@ export const pageQuery = graphql`
           fields {
             slug
           }
-          html
+          code { body }
           frontmatter {
             title
             date(formatString: "MMMM DD, YYYY")

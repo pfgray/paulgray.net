@@ -1,6 +1,7 @@
 import React from "react";
 import Helmet from "react-helmet";
 import { graphql } from "gatsby";
+import { MDXRenderer } from 'gatsby-mdx';
 
 export default class Note extends React.Component {
   render() {
@@ -8,7 +9,7 @@ export default class Note extends React.Component {
       title,
       subtitle,
       tags
-    } = this.props.data.markdownRemark.frontmatter;
+    } = this.props.data.mdx.frontmatter;
 
     const ogTags = tags.map(t => ({
       property: "og:article:tag",
@@ -31,12 +32,9 @@ export default class Note extends React.Component {
           <h1>{title}</h1>
           <h4 className="subtitle">{subtitle}</h4>
         </div>
-        <div
-          className="post-body"
-          dangerouslySetInnerHTML={{
-            __html: this.props.data.markdownRemark.html
-          }}
-        />
+        <div className="post-body">
+          <MDXRenderer>{this.props.data.mdx.code.body}</MDXRenderer>
+        </div>
         {/* <pre>{JSON.stringify(this.props.data.markdownRemark, null, 2)}</pre> */}
       </div>
     );
@@ -45,8 +43,8 @@ export default class Note extends React.Component {
 
 export const pageQuery = graphql`
   query RefBySlug($slug: String!) {
-    markdownRemark(fields: { slug: { eq: $slug } }) {
-      html
+    mdx(fields: { slug: { eq: $slug } }) {
+      code { body }
       fields {
         tagSlugs
       }

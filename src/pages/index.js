@@ -11,7 +11,8 @@ const dot = entry => val => val[entry];
 
 export default class Index extends React.Component {
   render() {
-    const posts = this.props.data.allMarkdownRemark.edges.map(dot("node"));
+    // return <pre>{JSON.stringify(this.props, null, 2)}</pre>;
+    const posts = this.props.data.allMdx.edges.map(dot("node"));
 
     return (
       <div className="index">
@@ -36,8 +37,8 @@ export default class Index extends React.Component {
 }
 
 export const pageQuery = graphql`
-  query AllMarkdown {
-    allMarkdownRemark(
+  query AllMdx {
+    allMdx(
       sort: { order: DESC, fields: [frontmatter___date] }
       filter: { frontmatter: { draft: { ne: true }, layout: { eq: "post" } } }
     ) {
@@ -46,7 +47,7 @@ export const pageQuery = graphql`
           fields {
             slug
           }
-          html
+          rawBody
           frontmatter {
             title
             subtitle

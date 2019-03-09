@@ -5,8 +5,8 @@ import { graphql } from "gatsby";
 
 class TagTemplate extends React.Component {
   render() {
-    const posts = this.props.data.allMarkdownRemark
-      ? this.props.data.allMarkdownRemark.edges.map(e => e.node)
+    const posts = this.props.data.allMdx
+      ? this.props.data.allMdx.edges.map(e => e.node)
       : [];
 
     return (
@@ -27,7 +27,7 @@ export default TagTemplate;
 
 export const pageQuery = graphql`
   query TagPage($tag: String) {
-    allMarkdownRemark(
+    allMdx(
       limit: 1000
       sort: { fields: [frontmatter___date], order: DESC }
       filter: { frontmatter: { tags: { in: [$tag] }, draft: { ne: true } } }
@@ -35,10 +35,7 @@ export const pageQuery = graphql`
       totalCount
       edges {
         node {
-          fields {
-            slug
-          }
-          html
+          code { body }
           frontmatter {
             title
             date(formatString: "MMMM DD, YYYY")

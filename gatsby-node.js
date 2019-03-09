@@ -11,12 +11,10 @@ exports.createPages = ({ graphql, actions }) => {
   return graphql(
     `
       {
-        allMarkdownRemark(limit: 1000) {
+        allMdx(limit: 1000) {
           edges {
             node {
-              fields {
-                slug
-              }
+              fileAbsolutePath
               frontmatter {
                 tags
                 layout
@@ -29,39 +27,28 @@ exports.createPages = ({ graphql, actions }) => {
   ).then(result => {
     if (result.errors) {
       console.log(result.errors);
+      return Promise.reject(result.errors)
     }
 
     const blogPostTemplate = path.resolve(`src/templates/post.js`);
-    const refTemplate = path.resolve(`src/templates/note.js`);
+    const noteTemplate = path.resolve(`src/templates/note.js`);
 
     // Create blog posts pages.
-    result.data.allMarkdownRemark.edges.forEach(edge => {
-      if (edge.node.frontmatter.layout === "post") {
-        createPage({
-          path: edge.node.fields.slug, // required
-          component: slash(blogPostTemplate),
-          context: {
-            slug: edge.node.fields.slug,
-            highlight: edge.node.frontmatter.highlight,
-            shadow: edge.node.frontmatter.shadow
-          }
-        });
-      }
-      if (edge.node.frontmatter.layout === "note") {
-        createPage({
-          path: edge.node.fields.slug, // required
-          component: slash(refTemplate),
-          context: {
-            slug: edge.node.fields.slug,
-            highlight: edge.node.frontmatter.highlight,
-            shadow: edge.node.frontmatter.shadow
-          }
-        });
-      }
+    result.data.allMdx.edges.forEach(edge => {
+      const slug = generateSlug(edge.node.fileAbsolutePath);
+      const template = edge.node.frontmatter.layout === "post" ? blogPostTemplate : noteTemplate;
+      
+      createPage({
+        path: slug,
+        component: slash(template),
+        context: {
+          slug: slug
+        }
+      });
     });
 
     // Create a tag page:
-    result.data.allMarkdownRemark.edges.forEach(edge => {
+    result.data.allMdx.edges.forEach(edge => {
       // console.log('creating page for: ', JSON.stringify(, null, 2));
       const tagListTemplate = path.resolve(`src/templates/tag.js`);
       const tags =
@@ -93,13 +80,12 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
       name: `slug`,
       value: generateSlug(node.absolutePath)
     });
-  } else if (node.internal.type === `MarkdownRemark`) {
+  } else if (node.internal.type === "Mdx") { 
     createNodeField({
+      name: "slug",
       node,
-      name: `slug`,
       value: generateSlug(node.fileAbsolutePath)
     });
-
     if (node.frontmatter) {
       const fileNode = getNode(node.parent);
       if (node.frontmatter.tags) {
@@ -123,7 +109,7 @@ const generateSlug = (fullPath, note) => {
   if (fullPath.indexOf("/notes/") === -1) {
     return `/${_.kebabCase(dirName.split(`---`)[1])}/`;
   } else {
-    return `/notes/${_.kebabCase(dirName)}/`;
+    return `/notes/${_.kebabCase(dirName.split(`---`)[1])}/`;
   }
 };
 

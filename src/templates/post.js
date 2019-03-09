@@ -2,10 +2,12 @@ import React from "react";
 import Helmet from "react-helmet";
 import ColoredTag from "./ColoredTag";
 import { graphql } from "gatsby";
+import { MDXRenderer } from 'gatsby-mdx';
 
 class BlogPostTemplate extends React.Component {
   render() {
-    const post = this.props.data.markdownRemark;
+    // return <pre>{JSON.stringify(this.props, null, 2)}</pre>
+    const post = this.props.data.mdx;
 
     const ogTags = post.frontmatter.tags.map(t => ({
       property: "og:article:tag",
@@ -38,10 +40,9 @@ class BlogPostTemplate extends React.Component {
             <ColoredTag tag={tag} />
           ))}
         </div>
-        <div
-          className="post-body"
-          dangerouslySetInnerHTML={{ __html: post.html }}
-        />
+        <div className="post-body">
+          <MDXRenderer>{post.code.body}</MDXRenderer>
+        </div>
       </div>
     );
   }
@@ -51,11 +52,12 @@ export default BlogPostTemplate;
 
 export const pageQuery = graphql`
   query BlogPostBySlug($slug: String!) {
-    markdownRemark(fields: { slug: { eq: $slug } }) {
-      html
+    mdx(fields: { slug: { eq: $slug } }) {
       fields {
+        slug
         tagSlugs
       }
+      code { body }
       frontmatter {
         title
         subtitle

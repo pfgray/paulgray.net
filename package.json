@@ -4,9 +4,13 @@
   "version": "1.0.0",
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
   "dependencies": {
+    "@mapbox/rehype-prism": "^0.3.1",
+    "@mdx-js/mdx": "^0.20.3",
+    "@mdx-js/tag": "^0.20.3",
     "es6-object-assign": "^1.1.0",
     "gatsby": "^2.0.0",
     "gatsby-link": "^2.0.0",
+    "gatsby-mdx": "^0.4.2",
     "gatsby-plugin-catch-links": "^2.0.0",
     "gatsby-plugin-glamor": "^2.0.0",
     "gatsby-plugin-layout": "^1.0.12",
@@ -35,7 +39,9 @@
     "react-helmet": "^5.2.0",
     "react-images": "^0.5.4",
     "react-router": "^4.3.1",
-    "react-router-dom": "^4.3.1"
+    "react-router-dom": "^4.3.1",
+    "remark": "^10.0.1",
+    "strip-markdown": "^3.0.3"
   },
   "devDependencies": {
     "gh-pages": "^0.12.0"

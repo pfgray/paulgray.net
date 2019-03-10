@@ -2,7 +2,9 @@ import React from "react";
 import Helmet from "react-helmet";
 import ColoredTag from "./ColoredTag";
 import { graphql } from "gatsby";
-import { MDXRenderer } from 'gatsby-mdx';
+import { MDXRenderer } from "gatsby-mdx";
+import { MDXProvider } from "@mdx-js/tag";
+import AutoLinkedHeading from "../components/AutoLinkedHeading";
 
 class BlogPostTemplate extends React.Component {
   render() {
@@ -41,7 +43,18 @@ class BlogPostTemplate extends React.Component {
           ))}
         </div>
         <div className="post-body">
-          <MDXRenderer>{post.code.body}</MDXRenderer>
+          <MDXProvider
+            components={{
+              h1: props => <AutoLinkedHeading header="h1" {...props} />,
+              h2: props => <AutoLinkedHeading header="h2" {...props} />,
+              h3: props => <AutoLinkedHeading header="h3" {...props} />,
+              h4: props => <AutoLinkedHeading header="h4" {...props} />,
+              h5: props => <AutoLinkedHeading header="h5" {...props} />,
+              h6: props => <AutoLinkedHeading header="h6" {...props} />
+            }}
+          >
+            <MDXRenderer>{post.code.body}</MDXRenderer>
+          </MDXProvider>
         </div>
       </div>
     );
@@ -57,7 +70,9 @@ export const pageQuery = graphql`
         slug
         tagSlugs
       }
-      code { body }
+      code {
+        body
+      }
       frontmatter {
         title
         subtitle

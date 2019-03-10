@@ -1,15 +1,13 @@
 import React from "react";
 import Helmet from "react-helmet";
 import { graphql } from "gatsby";
-import { MDXRenderer } from 'gatsby-mdx';
+import { MDXRenderer } from "gatsby-mdx";
+import { MDXProvider } from "@mdx-js/tag";
+import AutoLinkedHeading from "../components/AutoLinkedHeading";
 
 export default class Note extends React.Component {
   render() {
-    const {
-      title,
-      subtitle,
-      tags
-    } = this.props.data.mdx.frontmatter;
+    const { title, subtitle, tags } = this.props.data.mdx.frontmatter;
 
     const ogTags = tags.map(t => ({
       property: "og:article:tag",
@@ -33,7 +31,18 @@ export default class Note extends React.Component {
           <h4 className="subtitle">{subtitle}</h4>
         </div>
         <div className="post-body">
-          <MDXRenderer>{this.props.data.mdx.code.body}</MDXRenderer>
+          <MDXProvider
+            components={{
+              h1: props => <AutoLinkedHeading header="h1" {...props} />,
+              h2: props => <AutoLinkedHeading header="h2" {...props} />,
+              h3: props => <AutoLinkedHeading header="h3" {...props} />,
+              h4: props => <AutoLinkedHeading header="h4" {...props} />,
+              h5: props => <AutoLinkedHeading header="h5" {...props} />,
+              h6: props => <AutoLinkedHeading header="h6" {...props} />
+            }}
+          >
+            <MDXRenderer>{this.props.data.mdx.code.body}</MDXRenderer>
+          </MDXProvider>
         </div>
         {/* <pre>{JSON.stringify(this.props.data.markdownRemark, null, 2)}</pre> */}
       </div>
@@ -44,7 +53,9 @@ export default class Note extends React.Component {
 export const pageQuery = graphql`
   query RefBySlug($slug: String!) {
     mdx(fields: { slug: { eq: $slug } }) {
-      code { body }
+      code {
+        body
+      }
       fields {
         tagSlugs
       }

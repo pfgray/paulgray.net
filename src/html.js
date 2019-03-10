@@ -1,42 +1,45 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import favicon from './favicon.ico';
-import logo from './img/me_200.jpg';
+import React from "react";
+import PropTypes from "prop-types";
+import favicon from "./favicon.ico";
+import logo from "./img/me_200.jpg";
 
 const BUILD_TIME = new Date().getTime();
 
 export default class HTML extends React.Component {
   static propTypes = {
-    body: PropTypes.string,
-  }
+    body: PropTypes.string
+  };
 
   render() {
-    let css
-    if (process.env.NODE_ENV === "production") {
-      css = (
-        <style
-          dangerouslySetInnerHTML={{
-            __html: require("!raw!../public/styles.css"),
-          }}
-        />
-      )
-    }
+    // let css
+    // if (process.env.NODE_ENV === "production") {
+    //   css = (
+    //     <style
+    //       dangerouslySetInnerHTML={{
+    //         __html: require("!raw!../public/styles.css"),
+    //       }}
+    //     />
+    //   )
+    // }
 
     return (
       <html lang="en">
         <head>
           <meta charSet="utf-8" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
 
           <meta name="theme-color" content="#6fa6cd" />
 
-          { /* hmm, gatsby doesn't know my website url, as it could be deplyed anywhere */}
+          {/* hmm, gatsby doesn't know my website url, as it could be deplyed anywhere */}
           <meta property="og:image" content={"https://paulgray.net" + logo} />
 
           <link rel="icon" href={favicon} />
           {this.props.headComponents}
-          {css}
+          {/* {css} */}
         </head>
         <body>
           <div
@@ -46,6 +49,6 @@ export default class HTML extends React.Component {
           {this.props.postBodyComponents}
         </body>
       </html>
-    )
+    );
   }
 }

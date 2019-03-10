@@ -35,9 +35,15 @@ export const pageQuery = graphql`
       totalCount
       edges {
         node {
-          code { body }
+          fields {
+            slug
+          }
+          code {
+            body
+          }
           frontmatter {
             title
+            subtitle
             date(formatString: "MMMM DD, YYYY")
           }
         }

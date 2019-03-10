@@ -11,17 +11,6 @@ export default class HTML extends React.Component {
   };
 
   render() {
-    // let css
-    // if (process.env.NODE_ENV === "production") {
-    //   css = (
-    //     <style
-    //       dangerouslySetInnerHTML={{
-    //         __html: require("!raw!../public/styles.css"),
-    //       }}
-    //     />
-    //   )
-    // }
-
     return (
       <html lang="en">
         <head>
@@ -39,7 +28,6 @@ export default class HTML extends React.Component {
 
           <link rel="icon" href={favicon} />
           {this.props.headComponents}
-          {/* {css} */}
         </head>
         <body>
           <div

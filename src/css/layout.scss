@@ -185,3 +185,9 @@ blockquote {
     margin-left: 0;
   }
 }
+
+.post-body {
+  pre ~ p, pre ~ h1, pre ~ h2, pre ~ h3, pre ~ h4, pre ~ h5, pre ~ h6 {
+    margin-top: 1rem;
+  }
+}

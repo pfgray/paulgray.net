@@ -1,3 +1,5 @@
+const prism = require('@mapbox/rehype-prism')
+
 module.exports = {
   siteMetadata: {
     title: `The Gray side of Software`,
@@ -18,47 +20,18 @@ module.exports = {
     },
     `gatsby-transformer-sharp`,
     {
-      resolve: `gatsby-transformer-remark`,
+      resolve: 'gatsby-mdx',
       options: {
-        plugins: [
-          {
-            resolve: `gatsby-remark-images`,
-            options: {
-              maxWidth: 740
-            }
-          },
-          {
-            resolve: "gatsby-remark-embed-video",
-            options: {
-              width: 800,
-              ratio: 1.77, // Optional: Defaults to 16/9 = 1.77
-              height: 400, // Optional: Overrides optional.ratio
-              related: false, //Optional: Will remove related videos from the end of an embedded YouTube video.
-              noIframeBorder: true //Optional: Disable insertion of <style> border: 0
-            }
-          },
-          {
-            resolve: `gatsby-remark-responsive-iframe`,
-            options: {
-              wrapperStyle: `margin-bottom: 1.0725rem`
-            }
-          },
-          `gatsby-remark-copy-linked-files`,
-          {
-            resolve: `gatsby-remark-smartypants`,
-            options: {
-              dashes: `oldschool`
-            }
-          },
-          {
-            resolve: `gatsby-remark-prismjs`,
-            options: {
-              inlineCodeMarker: "±"
-            }
-          },
-          `gatsby-remark-autolink-headers`
-        ]
-      }
+        root: __dirname,
+        hastPlugins: [[prism, { ignoreMissing: true }]],
+        gatsbyRemarkPlugins: [{
+          resolve: "gatsby-remark-images",
+          options: {
+            maxWidth: 1035,
+            sizeByPixelDensity: true
+          }
+        }]
+      },
     },
     `gatsby-transformer-yaml`,
     `gatsby-plugin-sharp`,
@@ -66,6 +39,7 @@ module.exports = {
     `gatsby-plugin-glamor`,
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-sass`,
-    `gatsby-transformer-javascript-static-exports`
+    `gatsby-transformer-javascript-frontmatter`,
+    `gatsby-plugin-layout`
   ]
 };

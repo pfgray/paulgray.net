@@ -1,4 +1,6 @@
-import ReactGA from "react-ga";
+const ReactGA = require("react-ga");
+require("prismjs/themes/prism-solarizedlight.css");
+
 ReactGA.initialize("UA-60737789-1");
 
 exports.onRouteUpdate = (state, page, pages) => {
@@ -7,8 +9,7 @@ exports.onRouteUpdate = (state, page, pages) => {
 };
 
 exports.onClientEntry = function() {
-  require(`es6-object-assign`).polyfill();
+  require('es6-object-assign').polyfill();
 };
 
-require("prismjs/themes/prism-solarizedlight.css");
 // require("prism-themes/themes/prism-duotone-sea.css")

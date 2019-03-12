@@ -1,17 +1,19 @@
-import React from "react"
-import Link from "gatsby-link"
-import Helmet from "react-helmet"
-import PostSummary from '../templates/PostSummary.js';
+import React from "react";
+import Helmet from "react-helmet";
+import { graphql } from "gatsby";
 
 export default class Notes extends React.Component {
   render() {
-    console.log('got: ', this.props);
-    const md = this.props.data.allMarkdownRemark ? this.props.data.allMarkdownRemark.edges : [];
-    const js = this.props.data.allJsFrontmatter ? this.props.data.allJsFrontmatter.edges : [];
+    const md = this.props.data.allMdx
+      ? this.props.data.allMdx.edges
+      : [];
+    const js = this.props.data.allJsFrontmatter
+      ? this.props.data.allJsFrontmatter.edges
+      : [];
     // return (<pre>{JSON.stringify(this.props, null, 2)}</pre>);
     const posts = [
-      ...md.map(e => ({...e.node.fields, ...e.node.frontmatter})),
-      ...js.map(e => ({...e.node.fields, ...e.node.data})),
+      ...md.map(e => ({ ...e.node.fields, ...e.node.frontmatter })),
+      ...js.map(e => ({ ...e.node.fields, ...e.node.data }))
     ];
 
     return (
@@ -21,11 +23,19 @@ export default class Notes extends React.Component {
           {/* Facebook Open Graph */}
           <meta property="og:url" content="https://paulgray.net/notes/" />
           <meta property="og:title" content="Paul Gray" />
-          <meta name="description" property="og:description" content="Paul's projects" />
+          <meta
+            name="description"
+            property="og:description"
+            content="Paul's projects"
+          />
         </Helmet>
         <h1>Notes</h1>
         {posts.map(post => (
-          <div className="small-blog-post" key={post.title} style={{marginTop: '2em'}}>
+          <div
+            className="small-blog-post"
+            key={post.title}
+            style={{ marginTop: "2em" }}
+          >
             <a className="title-container" href={post.slug}>
               <div>
                 <div className="title">{post.title}</div>
@@ -41,11 +51,16 @@ export default class Notes extends React.Component {
 
 export const pageQuery = graphql`
   query AllMarkdownRefs {
-    allMarkdownRemark(sort: {order:DESC,fields:[frontmatter___date]}, filter: { frontmatter: { draft: { ne: true }, layout: { eq: "note" }}}) {
+    allMdx(
+      sort: { order: DESC, fields: [frontmatter___date] }
+      filter: { frontmatter: { draft: { ne: true }, layout: { eq: "note" } } }
+    ) {
       edges {
         node {
-          fields {slug}
-          html
+          fields {
+            slug
+          }
+          code { body }
           frontmatter {
             title
             date(formatString: "MMMM DD, YYYY")
@@ -53,33 +68,5 @@ export const pageQuery = graphql`
         }
       }
     }
-    allJsFrontmatter (sort: {order:DESC,fields:[data___date]}, filter: { data: { draft: { eq: false }, layout: { eq: "note" }}}) {
-      edges {
-        node {
-          fields {slug}
-          data {
-            title
-            date(formatString: "MMMM DD, YYYY")
-            layout
-          }
-        }
-      }
-    }
   }
-`
-
-
-// fields {slug}
-
-
-
-
-// {
-//   allSitePage(filter: { path: { regex: "\/reference\/"}}) {
-//     edges {
-//       node {
-//         path
-//       }
-//     }
-//   }
-// }
+`;

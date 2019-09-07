@@ -191,3 +191,26 @@ blockquote {
     margin-top: 1rem;
   }
 }
+
+.callout {
+  margin: 2rem;
+
+  @media #{$small} {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  p, pre, pre ~ p {
+    margin: 0.5rem 0;
+  }
+  padding: 1rem;
+  border: 1px solid #ddd; background-color: #eee;
+  color: #666;
+
+  code {
+    background-color: white;
+  }
+  pre code {
+    background-color: initial;
+  }
+}

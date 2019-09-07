@@ -1,0 +1,244 @@
+---
+title: Redux Selectors are Monads
+subtitle: Using fp-ts to unlock advanced composition patterns.
+date: "2019-05-17T00:00:00.000Z"
+layout: post
+draft: false
+tags:
+  - javascript
+  - typescript
+  - redux
+  - functor
+  - monad
+  - reselect
+  - functional programming
+---
+
+import { Spoiler } from "../../components/Spoiler";
+
+import { Callout } from "../../components/Callout";
+
+Redux Selectors (from reselect) are Monads.
+
+This unlocks some advanced composition patterns that we may have not considered before. Such as `Do` (a haskell-like `do` notation for JavaScript with support for Typescript):
+
+```ts
+const userSelector = createSelector(...)
+const postsSelector = () => createSelector(...)
+
+const userPostsSelector = 
+  Do(selectorMonad)
+    .bind('user', userSelector)
+    .bindL('posts', ({user}) => postsSelector(user.id))
+    .done()
+```
+
+Here, we've composed two selectors that we created with reselect, `userSelector` and `postsSelector`, into another selector, `userPostsSelector`, which selects a user and that user's posts, returning an object like:
+
+```js
+{
+  user: { id: 1, name: 'bob' },
+  posts: [...]
+}
+```
+
+## The Monad interface
+
+A monad is a wrapper around some value, which has a chain method that takes a callback, which takes the wrapped value, and returns another wrapper around some other value, and 'unwraps' it, leaving you with only one layer of wrapper. If we were to write out the type signature, it would look something like this:
+```ts
+class Wrapper<A> {
+  chain(f: (a: A) => Wrapper<B>): Wrapper<B>
+}
+```
+
+`Wrapper` can be any generic type. You've undoubtedly used this pattern before. Take a look at a (simplified) definition of a `Promise`'s `then`:
+
+```ts
+class Promise<A> {
+  then(f: (a: A) => Promise<B>): Promise<B>
+}
+```
+Here we've just plugged `Promise` into `Wrapper`, and you're probably familiar with this function already.
+
+The same is true for Arrays:
+```ts
+class Array<A> {
+  flatMap(f: (a: A) => Array<B>): Array<B>
+}
+```
+Although arrays name this function `flatMap` and promises name this function `then`, they both have similar shapes!
+
+Selectors could also have a `chain` method which is shaped just like promise's `then` and array's `flatMap`:
+
+```ts
+class Selector<State, A> {
+  chain(f: (a:A) => Selector<State, B>): Selector<State, B>
+}
+```
+
+This `chain/flatMap/then` method is the mark of a monad. Of course, there are a few more details which I'll describe later, but this one is the most important.
+
+In fp-ts, the `Monad` interface is modelled as a _typeclass_ (This just means that the methods we need to implement exist on a separate object, instead of on the class itself). 
+
+In our `Selector` example, we showed selectors as a class with a `chain` method. In reality, selectors are functions that are created outside of our control. Normally, If we wanted selectors to implement an interface, we'd have to wrap them with a thin wrapper that implements that interface, which gets clunky. With typeclasses, we simply define extra functions on a standalone object, freeing us from this restriction:
+
+```ts
+type Selector<State, A> = (s: State) => A;
+
+// chain isn't defined on an instance of Selector,
+// instead it's on a completely separate object
+const selectorMonad = {
+  ...
+  chain<State, A, B>(
+    selector: Selector<State, A>,
+    f: (a: A) => Selector<State, B>
+  ): Selector<State, B> {
+    ???
+  }
+}
+```
+
+Take a minute and try to implement this method. It might help to try and articulate in your head what the arguments are, and what the return type is, before thinking about an implementation.
+
+<Spoiler label="Click to show chain">
+
+```ts
+chain<State, A, B>(fa: Selector<State, A>, f: (a: A) => Selector<State, B>): Selector<State, B> {
+  // first, return a new "selector." This selector must return a value of type "B"
+  return (state: State) => {
+    // use the "fa" selector to return an "a"
+    const a = fa(state);
+    // give that "a" value to the f, which will give us a selector that returns a "B"
+    const fb = f(a);
+    // give the state to the selector fb (which is a selector that returns a "B") 
+    return fb(state);
+  };
+}
+```
+</Spoiler>
+
+
+# Do
+
+`Do` works for _all monads_, not just selectors, arrays, and promises. How does it know when to use `flatMap`, `then`, or `chain`? The first parameter to `Do` is an instance of the `Monad` typeclass. This object contains all the logic.
+
+For example, if we wanted to use `Do` with selectors, we'd take the `selectorMonad` typeclass instance and give it to `Do`:
+
+```ts
+Do(selectorMonad)
+```
+
+`Do` returns a "builder," which allows us to incrementally bind the result of our selectors to identifiers that can be used by subsequent selectors. For example, lets take our `userSelector` and bind it to the `"user"` identifier:
+
+```ts
+Do(selectorMonad)
+  .bind("user", userSelector)
+```
+
+Remember, `userSelector` is still a normal selector function at this point. We could still use this like normal, say: `userSelector(state)`, which would return a user. Since functions don't have a `chain` method defined on them, `Do` uses the chain method defined on `selectorMonad`.
+
+Next, we can compose another selector that uses the output from `userSelector`. For our example, suppose we have a `postsSelector` which can select posts out of state for a particular user:
+
+```ts 
+const postsSelector: (u: User) => Selector<State, Post[]> =
+  user => state => {
+    return state.posts[user.id]
+  }
+```
+
+<Callout>
+
+`postsSelector` is curried, which just means that we'll invoke it like:
+```ts
+postsSelector(myUser)(state) // returns posts[] for this user
+```
+This will make it easier to compose with other selectors, and to use in `Do`.
+
+</Callout>
+
+The `bindL` method (short for _bindLamda_) allows us to pass a function which takes all of the previously bound values as it's parameter. In our case, the `user` (which is the user returned from our `userSelector`) is already bound, so we can destructure it:
+
+```ts
+Do(selectorMonad)
+  .bind("user", userSelector)
+  .bindL("posts", ({ user }) => postsSelector(user.id))
+```
+
+From the function we pass to `bindL` we return a selector, and `Do` will use the `chain` method from our selectorMonad to _compose_ the `postsSelector` with the `userSelector`.  
+
+This lambda form of `bind` is incredibly powerful, as it lets us compose wrappers which depend on values that come from wrappers higher in the change.
+
+If this sounds familiar, it should. This was the impetus behind the `async`/`await` syntax in Javascript. Consider this example where, instead of selecting users and posts from a redux store, we're fetching users and posts from a server:
+
+```js
+async function fetchUser() {
+  const user = await fetchUser();
+  const posts = await fetchPosts(user.id);
+  return posts;
+}
+```
+
+Here, we're composing chains of promises, where later promises rely on the output of previous promises. Can you see how it's similar to the example where we composed selectors?
+
+We could also build a monad typeclass for promises and use `Do` to compose them:
+```ts
+function fetchUser() {
+  return Do(promiseMonad)
+    .bind('user', fetchUser())
+    .bindL('posts', ({user}) => fetchPosts(user.id))
+    .done()
+}
+```
+
+<Callout>
+
+Promises aren't technically monads, since they don't behave the monad laws (they are not referentially transparent). If that doesn't make sense to you right now, don't fret; we can still use them with `Do`, since they match the `Monad` shape.
+
+For future reference, it might make more sense to use []() from fp-ts, which are just lazy promises.
+
+</Callout>
+
+Of course, Using `Do` to compose promises is a little more clumsy than the equivalent async/await (However you might finid that error-handling is much more straightforward). Why would we ever use `Do` then?
+
+Unlike async/await, `Do` works for _all_ monads, not just promises.
+
+Consider getting all posts from all users:
+
+```ts
+Do(arrayMonad)
+  .bind('user', usersArray)
+  .bindL('posts', ({ user }) => user.postsArray)
+```
+
+Or getting a user's image from a user that's potentially null:
+
+```ts
+Do(maybeMonad)
+  .bind('user', maybeUser)
+  .bindL('image', ({ user }) => user.maybeImage)
+```
+
+Or even using multiple render props/hocs/hooks together:
+
+```ts
+Do(renderPropMonad)
+  .bind('token', withAuthToken)
+  .bind('currentUser', ({ token }) => withLoadable(fetchUser(token)))
+  .do(({ token, user }) => ensureAdmin(user))
+  .done()
+  .render(({ token, user }) => (
+    <div>Welcome, {user.name}!</div>
+  ))
+```
+
+<Callout>
+
+`Do` unlocks new syntax sugar for composing one of the most ubiquitous patterns in functional programming: monads. This is so common, in fact, that many functional programming languages provide syntax sugar for this very case. For example, there's [`do`](https://en.wikibooks.org/wiki/Haskell/do_notation) in haskell, and [`for`-comprehensions](https://docs.scala-lang.org/tutorials/FAQ/yield.html) in scala.
+
+One day, I hope that Javascript can also have this type of syntax sugar. I've written a proposal for this syntax here: https://github.com/pfgray/ecma-proposal-chainable-do-syntax#generalization, and even a babel plugin which gets us most of the way there: https://github.com/pfgray/babel-plugin-monadic-do.
+
+</Callout>
+
+One of the best features of fp-ts is that it uses typeclasses, which means you don't need to adjust anything about the way you're using selectors. You simply define the `selectorMonad` object, and you can instantly start composing selectors that you made with the `reselect` library (or any other library for that matter!).
+
+Async await was a great improvement (syntax-wise) for composing chains of promises. `Do` aims to bring that convenience to wealth of other types. You just need to be open to seeing those types through a different lens.

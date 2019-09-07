@@ -9,6 +9,7 @@
     "@mdx-js/tag": "^0.20.3",
     "es6-object-assign": "^1.1.0",
     "gatsby": "^2.0.0",
+    "gatsby-cli": "^2.5.8",
     "gatsby-link": "^2.0.0",
     "gatsby-mdx": "^0.4.2",
     "gatsby-plugin-catch-links": "^2.0.0",

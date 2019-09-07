@@ -39,7 +39,7 @@ class BlogPostTemplate extends React.Component {
             ) : null}
           </div>
           {post.frontmatter.tags.map(tag => (
-            <ColoredTag tag={tag} />
+            <ColoredTag key={tag} tag={tag} />
           ))}
         </div>
         <div className="post-body">

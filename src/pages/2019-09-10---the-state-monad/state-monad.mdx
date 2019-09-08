@@ -1,0 +1,452 @@
+---
+title: The State monad
+subtitle: A thorough guide to fp-ts's State monad.
+date: "2019-09-18T00:00:00.000Z"
+layout: post
+draft: false
+tags:
+  - javascript
+  - typescript
+  - state
+  - monad
+  - functional programming
+---
+
+
+import { Spoiler } from "../../components/Spoiler";
+import { Callout } from "../../components/Callout";
+import { Footer, Source, SourceRef } from "../../components/Footer";
+
+How do we manage a value that may change over time in a pure, functional application?
+Let’s start with a simple example; pseudo random number generators.
+
+## Pure Random Number Generator
+
+Generating random numbers In Javascript is simple with `Math.random()`. Unfortunately, this function has a few properties that aren’t conducive to a pure, functional program. For example, the values returned from `Math.random` aren’t repeatable.
+How would we build a function that enables generating seemingly random values, but still be repeatable? One approach is to use a technique called _pseudo random number generators_<SourceRef number={1} /> (or, PRNGs, for short).
+
+The basic idea with PRNGs is that you start with one number, called a _seed_, pass it to a "generator" function to get the next number. Then you use the randomly generated number as the next seed input. You repeat this process to generate as many random numbers as needed. If we were to write this imperatively, it might look like this:
+
+```ts
+function random(seed: number) {
+  const nextSeed = (1839567234 * seed + 972348567) % 8239451023
+  return nextSeed;
+}
+
+const seed = 1;
+const randomNumber1 = random(seed);
+const randomNumber2 = random(randomNumber1);
+```
+
+Unlike `Math.random`, our `random` function is pure and gives exactly the same output for every input. This is useful in many cases, from being able to replicate bugs found in our applications, to being able to repeat randomly-generated test cases.
+
+Sometimes it’s useful to generate a random value of something other than just plain numbers. Let’s say we wanted to generate a number within a certain range. We can take a randomly generated value and ensure it’s in a specific range by transforming it. Let’s build a naive version which throws away the initial seed.
+
+```ts
+function randomInRange(seed: number, min: number, max: number) {
+  const nextSeed = random(seed)
+  const random = min + Math.floor((nextSeed / m) * (max - min))
+  return random;
+}
+```
+
+And we can use it to generate two numbers in a range:
+
+```ts
+const seed = 1;
+const random1 = randomInRange(seed, 0, 10);
+const random2 = randomInRange(seed, 0, 10);
+```
+
+But, oh no! The two random numbers are the same! It’s because we’ve re-used the same seed value twice. We need to return the ranged number, but we also need to return the next seed. Typescript has a notion of "tuples" which we can use to return multiple values. Let’s change our `randomInRange` function to return both the next seed and the generated range number:
+
+```ts
+function randomInRange(seed: number, min: number, max: number) {
+  const nextSeed = random(seed)
+  const random = min + Math.floor((nextSeed / m) * (max - min))
+  return [nextSeed, random];
+}
+```
+
+Now we can use each new seed value to generate different ranged values:
+```ts
+const seed1 = 1;
+const [seed2, random1] = randomInRange(seed1, 0, 10);
+const [seed3, random2] = randomInRange(seed2, 0, 10);
+```
+
+We have two different numbers!
+
+
+Now, let’s build a function that generates a random first name for a user. We can start with a list of names in an array, and randomly pick one:
+```ts
+const FirstNames = ['Paul', 'Nicole', 'Zane', 'Ellie']
+function randomFirstName(seed: number) {
+  const [seed2, ranged] = randomInRange(seed, 0, FirstNames.length)
+  return [seed2, FirstNames[ranged]];
+}
+```
+
+You might have started to notice a pattern with these generators, all of them take a number, and then return a number, in addition to another generated value. They all have a similar shape; `(seed: number) => [number, A]`, where `A` is the generated value.
+
+The `State` monad from the `fp-ts` library generalizes this pattern, which means it makes it possible to use with _any_ type of state (not just `number`).
+
+## The State type
+The more we use our generator functions, the more cumbersome it becomes to keep track of the current seed value, feeding it into each subsequent generator. The `State` monad can help us by maintaining this value for us. `State` is defined as a function that takes in some state value, and returns the next state, along with another value.
+```ts
+type State<S, A> = (state: S) => [S, A]
+```
+
+In our case, the only state we have is a number (the seed), so our `S` type will be `number`, and our `A` type will be different for every generator (depending on the type of value that’s generated). Let’s make a type alias for our generators:
+```ts
+type Random<A> = (state: number) => [number, A]
+```
+Since we already know the type of `S`, we can fill it in here (`number`), while leaving the return value (`A`) generic. The `A` value will be the type of the value we’re generating, for example, a function that generates a number will have the type `Random<number>`, and a function that generates a random string will have the type `Random<string>`:
+
+```ts
+const random: Random<number>     = ... // (seed: number) => [number, number]
+const randomName: Random<string> = ... // (seed: number) => [number, string]
+```
+
+Note that we could have defined our type like: `type Random<A> = State<number, A>`, which is equivalent. In Typescript, types are structural rather than nominal, so we don’t specifically need to use `fp-ts`’s `State` type alias.
+
+Let’s refactor our initial function to use the new type alias:
+
+```ts
+const random: Random<number> = seed => {
+  const nextSeed = (1839567234 * seed + 972348567) % 8239451023
+  return [nextSeed, nextSeed];
+}
+```
+
+### map
+`fp-ts`’s state comes with a handy `map` function which we can use to modify the `A` inside of any `Random<A>`. Here, we’ll redefine our `randomInRange` to use map to modify the original random number to ensure it’s in the specified range.
+
+Here's the type signature of `map`:
+
+```ts
+const map: <A, B>(f: (a: A) => B) => <E>(fa: State<E, A>) => State<E, B>
+```
+
+this function is curried, so we'll invoke it like: `map(???)(???)`. The first argument is a function that modifies the random output of the second argument. Let's fill in the second part first:
+
+```ts
+const random: Random<number> = ...
+
+function randomInRange(max: number, min: number): Random<number> {
+  return map(???)(random)
+}
+```
+
+Since the type inside our `random` value is `number`, the function we'll pass takes a `number` as it's parameter, and returns some other value.
+
+```ts
+function randomInRange(max: number, min: number): Random<number> {
+  function inRange(num: number) {
+    // change num so that it's between max and min
+    return min + Math.floor((num / 8239451023) * (max - min))
+  }
+
+  return map(inRange)(random);
+}
+```
+
+Here, the random number generated from `random` is passed into `inRange` supplied to `map`. The map function takes care of "unwrapping" the random value inside, we don’t need to explicitly track the `seed`.
+
+Try and implement the map function:
+```ts
+const map: <A, B>(f: (a: A) => B) => <E>(fa: State<E, A>) => State<E, B> =
+  f => generate => seed => {
+    // f's type is (a: A) => B
+    // generate's type is (s: E) => [A, E]
+    // seed's type is E
+
+    // we need to return a [B, E]
+    return ???
+  }
+```
+
+<Spoiler label="Click to show">
+
+```ts
+const map: <A, B>(f: (a: A) => B) => <E>(fa: State<E, A>) => State<E, B> =
+  f => generate => seed => {
+    const [a, nextSeed] = generate(seed)
+    return [f(a), nextSeed];
+  }
+```
+
+</Spoiler>
+
+Notice that when we use `map`, we need to annotate the argument type of `inRange`. If we left that out, Typescript would automatically infer the argument as any, and it would be unsafe. This is because in TS, inference is resolved left-to-right. When resolving types, Typescript first sees `map(num => ...)`, and attempts to fill in the types for use before moving on. Of course, we can see that eventually we'll be passing a `Random<number>`, and so `num`'s type will be `number`, but Typescript can't make that guess.
+
+### pipe
+
+`fp-ts` provides the `pipe` function to alleviate some of these pains. With `pipe`, you supply the object being acted on first, then supply all subsequent transformations. This allows TS to be able to infer much more:
+
+```ts
+const randomInRange: (min: number, max: number) => Random<number> =
+  pipe(
+    generate,
+    map(num => {
+      // change num so that it's between max and min
+      return min + Math.floor((num / 8239451023) * (max - min))
+    })
+  )
+```
+
+Here, the only types we’ve supplied are the argument types for the `randomInRange` function, and TS was able to infer the rest. If you’re familiar with the fantasy-land interfaces, `pipe` is a good analog to that, instead of:
+```ts
+random
+  .map(...)
+  .chain(...)
+```
+We have:
+```ts
+pipe(
+  random,
+  map(...),
+  chain(...)
+)
+```
+
+<Callout>
+
+An Ecmascript propsal<SourceRef number={2} /> exists for the pipeline operator, a special operator that makes working with chains of operations much easier:
+```ts
+random
+  |> map(...)
+  |> chain(...)
+```
+Whlie the pipeline operator is available via some babel plugins, Typescript does not yet support it. Until then, we have `pipe`
+
+</Callout>
+
+We don’t need to keep the same type of values inside our `Random` type. In fact, in order to implement our name generator, we’ll need to take a `Random<number>` and turn it into a `Random<string>`. The `map` function is generalized enough to enable this: 
+
+```ts
+const FirstNames = ['Paul', 'Nicole', 'Zane', 'Ellie']
+const randomFirstName =
+  pipe(
+    generateInRange(0, FirstNames.length - 1),
+    map(index => FirstNames[index])
+  )
+```
+
+We’ll also add a `randomLastName` to generate surnames:
+```ts
+const LastNames = ['Gray', 'Smith', 'Jones', 'Williams']
+const randomLastName =
+  pipe(
+    nextInRange(0, LastNames.length - 1),
+    map(index => LastNames[index])
+  )
+```
+
+Before moving on: can you DRY out the code that’s shared between these functions?
+
+
+<Spoiler label="Click to show">
+
+Here's an approach that uses a function that randomly picks a value from an array:
+```ts
+const randomIn = <T>(arr: T[]) =>
+  pipe(
+    nextInRange(0, arr.length - 1),
+    map(index => arr[index])
+  )
+```
+
+Now we can define our name pickers in terms of `pickRandom`:
+```ts
+const randomFirstName = randomIn(['Paul', 'Nicole', 'Zane', 'Ellie'])
+const randomLastName  = randomIn(['Gray', 'Smith', 'Jones', 'Williams'])
+```
+
+</Spoiler>
+
+## Composition
+### sequenceT
+We can use `sequenceT` to combine multiple generators.
+
+For instance, let's say we want to build a `randomFullName` generator, which would generate a first name and lastname. We can accomplish this simply by composing our `randomFirstName` generator, and our `randomLastName` generator, using `sequenceT`:
+
+```ts
+import { state } from 'fp-ts/lib/State'
+import { sequenceT } from 'fp-ts/lib/Apply'
+
+const randomFullname =
+  pipe(
+    sequenceT(state)(randomFirstName, randomLastName),
+    map(([first, last]) => `${first} ${last}`)
+  )
+```
+
+<Callout>
+
+Here, `sequenceT` allows us to convert a `[Random<A>, Random<B>]`  into a `Random<[A, B]>`. You might recognize this signature as similar to Promise.all<SourceRef number={3}/> (which takes a `[Promise<A>, Promise<B>]` and turns it into a `Promise<[A, B]>`). 
+
+`sequenceT` is a little different, in that it works for _all_ applicatives (not only Promises).
+
+</Callout>
+
+`sequenceT` works for any amount of `Random` values that we hand it. A useful property of this function is that it maintains types across tuples. So, as an example, if we had three `Random` generators that generated three different types of values, and we passed all three to `sequenceT`, The types of each generator are persisted in the value returned:
+
+```ts
+import { state } from 'fp-ts/lib/State'
+import { sequenceT } from 'fp-ts/lib/Apply'
+
+const randomBool: Random<boolean>
+const randomName: Random<string>
+const randomCount: Random<number>
+
+const randoms = sequenceT(state)(randomBool, randomName, randomCount)
+
+randoms // type is: Random<[boolean, string, number]>
+```
+Due to how `sequenceT` is designed, all of the the types are inferred automatically!
+
+Since we combine both `Random` values at the same time, we can’t use the output of one as input to the other. For that, we'll need `chain`.
+
+### chain
+Let’s say we had a random generator for favorite sports teams:
+```ts
+const randomHockeyTeam = pickRandom([
+  'Maple Leafs', 'Canadiens', 'Flyers', 'Bruins'
+])
+const randomFootballTeam = pickRandom([
+  'Steelers', 'Eagles', 'Jaguars',
+])
+```
+
+Let's assume that we want each user to have a favorite sports team, but we also want each of the sports to have equal distribution among users. Since we have more hockey teams than football teams, we can’t put them all into the same pool. What we’ll do is first generate a random boolean, then, if the value is true, we’ll pick a hockey team, but if it's false, we'll pick a football team:
+
+```ts
+const randomBoolean: Random<boolean> =
+  pipe(
+    generateInRange(0, 1),
+    map(n => n === 1) // return true if it is 1, false if it is 0
+  )
+
+const randomTeam: Random<Random<string>> =
+  pipe(
+    randomBoolean,
+    map(bool => bool ? randomHockeyTeam : randomFootballTeam)
+  )
+```
+
+Here, we map over the boolean value, and turn it into a random hockey team or a random football team, with equal distribution chance. But, ack! We end up with a `Random<Random<string>>`, when we really only want a `Random<string>`. Since state a monad, we can "flatten" this structure automatically. The flattening comes from the `chain` function:
+
+```ts
+import { chain } from 'fp-ts/lib/State';
+
+const randomTeam: Random<string> =
+  pipe(
+    randomBoolean,
+    chain(bool => bool ? randomHockeyTeam : randomFootballTeam)
+  )
+```
+
+`chain`'s signature is quite similar to map, except that it allows us to return a `Random<B>` from our "mapping" function:
+```ts
+const chain: <S, A, B>(f: (a: A) => State<S, B>) => (ma: State<S, A>) => State<S, B>
+```
+
+Take a moment and try and implement `chain`. If you get stuck, try to explain in your own words (or in your own thoughts if you're not alone) what each variable's type is, and what that type represents. For example, a value with type `State<number, string>` is a "function that takes a number, and returns the next number and a string"
+
+```ts
+const chain: <S, A, B>(f: (a: A) => State<S, B>) => (fa: State<S, A>) => State<S, B> =
+  f => generate => seed => {
+    // f's type is (a: A) => State<S, B>
+    // generate's type is (s: S) => [A, S]
+    // seed's type is S
+
+    // we need to return a [B, S]
+    return ???
+  }
+```
+
+<Spoiler label="Click to show">
+
+```ts
+const chain: <E, A, B>(f: (a: A) => State<E, B>) => (fa: State<E, A>) => State<E, B> =
+  f => generate => seed => {
+    const [a, seed2] = generate(seed)
+    const [b, seed3] = f(a)(seed2)
+    return [b, seed3]
+  }
+```
+
+</Spoiler>
+
+
+### sequenceS
+
+Let’s try to build a user object from our randomly generated values:
+```ts
+import { sequenceS } from 'fp-ts/lib/Apply';
+
+const generateRandomUser = {
+  name: randomName,
+  age: randomInRange(18, 100),
+  favoriteTeam: pickRandomTeam
+}
+```
+
+Ack! `randomUser`’s type is:
+```ts
+{
+  name: Random<string>;
+  age: Random<number>;
+  favoriteTeam: Random<string>;
+}
+```
+This means that in order to get an actual user, we’d need to invoke each function for each attribute:
+```ts
+const seed1 = 1;
+const [seed2, name] = generateRandomUser.name(seed1);
+const [seed3, age] = generateRandomUser.age(seed2);
+const [seed4, favoriteTeam] = generateRandomUser.favoriteTeam(seed3);
+
+const randomUser = { name, age, favoriteTeam };
+```
+
+Instead, it would be much nicer if we have a value of type:
+```ts
+Random<{
+  name: string,
+  age: number,
+  favoriteTeam: string
+}>
+```
+
+Fortunately, since `State` is an applicative, we can compose the values of an object, while keeping the structure in tact, using `sequenceS`:
+
+```ts
+import { sequenceS } from 'fp-ts/lib/Apply'
+import { state } from 'fp-ts/lib/State'
+
+const generateRandomUser = sequenceS(state)({
+  name: randomName,
+  age: nextInRange(18, 100),
+  favoriteTeam: pickRandomTeam
+})
+```
+
+Note how `sequenceS` is quite similar to `sequenceT`, except that `sequenceS` maintains `State` values across objects (or, "structs"), whereas `sequenceT` maintains type across tuples. This is the meaning behind each of the suffixes, so you can remember that `sequenceS` maps _structs_, and `sequenceT` maps _tuples_.
+
+And now we can generate our random user with only a single seed:
+```ts
+const seed = 1337
+const randomUser = generateRandomUser(seed)
+```
+
+<Footer>
+
+<Source number={1} link="https://en.wikipedia.org/wiki/Pseudorandom_number_generator" />
+<Source number={2} link="https://github.com/tc39/proposal-pipeline-operator" />
+<Source number={3} link="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/all" />
+
+Code samples demonstrated here available at: https://github.com/pfgray/fp-ts-lessons/tree/master/state
+
+</Footer>

@@ -186,14 +186,41 @@ blockquote {
   }
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  position: relative;
+  a:hover::before {
+    content: '#';
+    position: absolute;
+    left: -22px;
+  }
+}
+
+h2 {
+  margin-top: 1.5em;
+}
+h3 {
+  margin-top: 1rem;
+}
+
 .post-body {
-  pre ~ p, pre ~ h1, pre ~ h2, pre ~ h3, pre ~ h4, pre ~ h5, pre ~ h6 {
-    margin-top: 1rem;
+  p ~ pre {
+    margin-top: 0.5rem;
+  }
+  pre ~ p {
+    margin-bottom: 0.5rem;
   }
 }
 
 .callout {
-  margin: 2rem;
+  margin: 1.5rem 1rem;
+  padding: 0.25rem 1rem;
+  border: 1px solid #ddd; background-color: #eee;
+  color: #666;
 
   @media #{$small} {
     margin-left: 0;
@@ -203,9 +230,6 @@ blockquote {
   p, pre, pre ~ p {
     margin: 0.5rem 0;
   }
-  padding: 1rem;
-  border: 1px solid #ddd; background-color: #eee;
-  color: #666;
 
   code {
     background-color: white;

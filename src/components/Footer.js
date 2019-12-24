@@ -1,18 +1,12 @@
 import React from "react";
 
 export class Footer extends React.Component {
-  constructor(props) {
-    super(props);
-  }
   render() {
     return <div className="footer" style={{marginTop: '5rem'}}>{this.props.children}</div>;
   }
 }
 
 export class Source extends React.Component {
-  constructor(props) {
-    super(props);
-  }
   render() {
     return (
       <div className="source" id={"source-" + this.props.number} style={{marginBottom: '0.5rem', wordBreak: 'break-all'}}>
@@ -23,9 +17,6 @@ export class Source extends React.Component {
 }
 
 export class SourceRef extends React.Component {
-  constructor(props) {
-    super(props);
-  }
   render() {
     return (
       <sup className="source-ref">

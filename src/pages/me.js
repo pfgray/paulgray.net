@@ -96,7 +96,8 @@ export default class Me extends React.Component {
             <div className="project" key={p.name}>
               <div className="project-info">
                 <h3>{p.name}</h3>
-                <img
+                <input
+                  type="image"
                   className="lightbox-preview small"
                   key={1}
                   src={p.img}
@@ -111,7 +112,8 @@ export default class Me extends React.Component {
               </div>
               {p.img
                 ? [
-                    <img
+                    <input
+                      type="image"
                       className="lightbox-preview big"
                       key={1}
                       src={p.img}

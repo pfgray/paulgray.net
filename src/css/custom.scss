@@ -206,14 +206,14 @@ a:hover {
       width: 100%;
     }
   }
-  img.lightbox-preview.small {
+  input.lightbox-preview.small {
     display: none;
     margin-bottom: 0;
     @media #{$small} {
       display: block;
     }
   }
-  img.lightbox-preview.big {
+  input.lightbox-preview.big {
     width: 45%;
     cursor: pointer;
     @media #{$small} {
@@ -230,9 +230,9 @@ a {
 // a:hover,a:focus,a:active {
 //   text-decoration: initial;
 // }
-*:focus {
-  outline: none;
-}
+// *:focus {
+//   outline: none;
+// }
 
 blockquote {
   border-left: 3px solid #AAA;

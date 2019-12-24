@@ -1,7 +1,7 @@
 import React from "react";
 import Helmet from "react-helmet";
 import { graphql } from "gatsby";
-import { MDXRenderer } from "gatsby-mdx";
+import { MDXRenderer } from "gatsby-plugin-mdx";
 import { MDXProvider } from "@mdx-js/tag";
 import AutoLinkedHeading from "../components/AutoLinkedHeading";
 
@@ -41,7 +41,7 @@ export default class Note extends React.Component {
               h6: props => <AutoLinkedHeading header="h6" {...props} />
             }}
           >
-            <MDXRenderer>{this.props.data.mdx.code.body}</MDXRenderer>
+            <MDXRenderer>{this.props.data.mdx.body}</MDXRenderer>
           </MDXProvider>
         </div>
         {/* <pre>{JSON.stringify(this.props.data.markdownRemark, null, 2)}</pre> */}
@@ -53,9 +53,7 @@ export default class Note extends React.Component {
 export const pageQuery = graphql`
   query RefBySlug($slug: String!) {
     mdx(fields: { slug: { eq: $slug } }) {
-      code {
-        body
-      }
+      body
       fields {
         tagSlugs
       }

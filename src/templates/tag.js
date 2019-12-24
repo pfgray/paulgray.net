@@ -38,9 +38,7 @@ export const pageQuery = graphql`
           fields {
             slug
           }
-          code {
-            body
-          }
+          body
           frontmatter {
             title
             subtitle

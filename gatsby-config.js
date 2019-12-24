@@ -1,4 +1,3 @@
-const prism = require('@mapbox/rehype-prism')
 
 module.exports = {
   siteMetadata: {
@@ -20,11 +19,15 @@ module.exports = {
     },
     `gatsby-transformer-sharp`,
     {
-      resolve: 'gatsby-mdx',
+      resolve: 'gatsby-plugin-mdx',
       options: {
-        root: __dirname,
-        hastPlugins: [[prism, { ignoreMissing: true }]],
+        // root: __dirname,
+        // rehypePlugins : [require('@mapbox/rehype-prism')],
+        extensions: [`.mdx`, `.md`],
         gatsbyRemarkPlugins: [{
+          resolve: 'gatsby-remark-prismjs',
+          options: {}
+        },{
           resolve: "gatsby-remark-images",
           options: {
             maxWidth: 1035,

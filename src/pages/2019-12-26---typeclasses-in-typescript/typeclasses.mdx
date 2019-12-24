@@ -1,0 +1,171 @@
+---
+title: Typeclasses in Typescript
+subtitle: A guide to using and building Typeclasses in Typescript
+date: "2019-12-23T00:00:00.000Z"
+layout: post
+draft: true
+tags:
+  - javascript
+  - typescript
+  - typeclasses
+  - monad
+  - functional programming
+  - fp-ts
+---
+
+import { Spoiler } from "../../components/Spoiler";
+import { Callout } from "../../components/Callout";
+import { Footer, Source, SourceRef } from "../../components/Footer";
+
+In statically typed functional programming, _typeclasses_ are often used in place of interfaces to achieve polymorphism. They are much more extensible and lend themselves to certain type structures that would otherwise be complex to model with interfaces.
+
+For example, let's say we wanted to build a function that takes a value, turns it into a string, and logs it. Let's suppose we can't just call `JSON.stringify`, and we need each object to be able to specify its own logic to achieve stringification. 
+
+Using an interface, this would look roughly like:
+
+```ts
+interface Stringable {
+  print(): string
+}
+
+function logValue(value: Stringable) {
+  console.log(value.toString())
+}
+```
+
+This works fine, but comes with a few limitations. First, it can only be used with values from modules that depend on the `Stringable` interface. For instance, in order to use it with a `string` value, you'd need to wrap it in an adapter object, something like:
+
+```ts
+const name = "Paul"
+
+logValue(new StringStringable(name))
+```
+
+This isn't too bad, but suppose we wanted to combine two interfaces, we'd need a special adapter which implements both of those interfaces. The problem gets worse as we add interfaces.
+
+```ts
+const name = "Paul"
+
+logValue(new StringStringableAndComparable(name))
+```
+
+In Typescript, we encode typeclasses with interfaces, but we separate the value from the method it's implementing. Instead of implementing that interface with our original value, we create a separate value and have that value implement the interface. Whenever we need to write a function for some value that "implements" the typeclass, we just have our function take two values; the original value, and an instance of a typeclass for that value.
+
+For example, let's build the same `logValue` function with a typeclass. Our `Stringable` interface becomes a typeclass, and it needs to work for _any_ value, so we introduce a type parameter, `A` (The type is irrelevant to the definition of `Stringable`, so we keep it concise). Our `print` function turns from a no-arg function, to a function that takes the value, `A`, and returns the string.
+
+```ts
+type Stringable<A> = {
+  print(value: A): string
+}
+```
+
+Our `logValue` changes to take two values; the original value that we're converting, and a typeclass instance for the original value (which will hold the logic for converting). We simply take the typeclass instance, and invoke the method on the original value:
+
+```ts
+function logValue<T>(t: T, stringable: Stringable<T>) {
+  console.log(stringable.print(t))
+}
+```
+
+Here, `logValue` works for _any_ value. We don't need to wrap the value in an adapter layer, and adding capabilities simply consists of adding typeclass parameters:
+
+```ts
+declare function logValue<T>(t: T, stringable: Stringable<T>, equal: Equal<T>)
+```
+
+Let's take a closer look at that `Equal` typeclass. In plain Javascript, it's often useful to compare two values. Oftentimes libraries take the shortcut of using the [_strict equality comparison algorithm_](https://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6) in times that it needs to determine if two values are equal. For example, `Set`s in Javascript determine equality using this algorithm. By default, a React `PureComponent` will compare props based on strict equality. The `reselect` library also uses strict equality to determine if parameters are the same. Sometimes this is fine, but other times it's useful to have finer-grained control over how two values are determined to be 'equal.'
+
+If we were to build this as an interface, it might look something like this:
+
+```ts
+interface Equal {
+  equals(other: Equal): boolean
+}
+```
+
+and then a few implementations:
+```ts
+class User implements Equal {
+  constructor(private id: number) {}
+  equals(user: User) {
+    return user.id === this.id
+  }
+}
+
+class Point implements Equal {
+  constructor(private x: number, private y: number) {}
+  equals(point: Point) {
+    return this.x === point.x && this.y === point.y 
+  }
+}
+```
+
+However this isn't totally accurate, For example, I can have two different instances of `Equal`s, but I can still compare them, while satisfying the typechecker:
+
+```ts
+const user: Equal = new User(1)
+const point: Equal = new Point(15, 30)
+
+user.equals(point) // type-checks, but is logically unsound
+```
+
+To make this more type-safe, we can use a typeclass to model the `Equal` interface. Instead of building a method that takes a single parameter, we build a method that takes two parameters; the original value to operate on, and the additional parameter to equate it to:
+
+```ts
+type Equal<A> = {
+  equals(left: A, right: A)
+}
+```
+
+Since the two parameters are fixed on a single type, there's no chance to mess this up. Using this new typeclass, let's build a function that takes in an array of values and removes the duplicates. You may be tempted to just create a `Set` from the array, but `Set` uses strict equality checking, which may lead to surprising results:
+
+```ts
+const users = [{
+  id: 1, name: "Bob"
+}, {
+  id: 2, name: "Susan"
+}, {
+  id: 1, name: "Bob"
+}]
+
+console.log(new Set(users))
+```
+
+This logs:
+```
+Set {
+  { id: 1, name: 'Bob' },
+  { id: 2, name: 'Susan' },
+  { id: 1, name: 'Bob' } }
+```
+
+Oops! We wanted to remove duplicates, but `Set` can only make decisions based on referential equality.
+
+Let's write a function using our `Equal` typeclass which implements this functionality:
+
+```ts
+function removeDupes<T>(array: T[], eq: Equal<T>) {
+  return array.reduce((agg, current) => {
+    // take only values that aren't in the aggregate
+    if(agg.some(a => eq.equals(a, current))) {
+      return agg
+    } else {
+      return [...agg, current]
+    }
+  }, [] as T[])
+}
+```
+
+In order to use this with `User` values, we just need to construct an instance of `Equal<User>`:
+
+```ts
+/** Two users are equal if their ids are equal */
+const userEq: Equal<User> = {
+  equals(l, r) {
+    return l.id === r.id
+  }
+}
+```
+
+
+

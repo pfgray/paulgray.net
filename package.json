@@ -18,7 +18,6 @@
     "gatsby-plugin-react-helmet": "2.0.12-9",
     "gatsby-plugin-sass": "^2.0.0",
     "gatsby-plugin-sharp": "^2.0.0",
-    "gatsby-remark-autolink-headers": "^2.0.0",
     "gatsby-remark-copy-linked-files": "^2.0.0",
     "gatsby-remark-embed-video": "^1.6.0",
     "gatsby-remark-images": "^3.0.0",

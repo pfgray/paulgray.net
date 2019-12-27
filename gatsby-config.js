@@ -21,8 +21,6 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-mdx',
       options: {
-        // root: __dirname,
-        // rehypePlugins : [require('@mapbox/rehype-prism')],
         extensions: [`.mdx`, `.md`],
         gatsbyRemarkPlugins: [{
           resolve: 'gatsby-remark-prismjs',

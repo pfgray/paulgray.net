@@ -22,6 +22,10 @@
     display: none;
   }
 
+  @media print {
+    display: none;
+  }
+
   h1 {
     font-size: 1.5rem;
     margin-bottom: 0.5em;
@@ -165,6 +169,10 @@
     margin-right: 0.1em;
   }
   @include tag();
+
+  @media print {
+    display: none;
+  }
 }
 
 pre code {

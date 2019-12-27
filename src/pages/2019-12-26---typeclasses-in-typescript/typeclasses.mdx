@@ -1,7 +1,7 @@
 ---
 title: Typeclasses in Typescript
-subtitle: A guide to using and building Typeclasses in Typescript
-date: "2019-12-23T00:00:00.000Z"
+subtitle: A guide to using and building typeclasses in Typescript with fp-ts
+date: "2019-12-26T00:00:00.000Z"
 layout: post
 draft: true
 tags:
@@ -17,7 +17,7 @@ import { Spoiler } from "../../components/Spoiler";
 import { Callout } from "../../components/Callout";
 import { Footer, Source, SourceRef } from "../../components/Footer";
 
-In statically typed functional programming, _typeclasses_ are often used in place of interfaces to achieve polymorphism. They are much more extensible and lend themselves to certain type structures that would otherwise be complex to model with interfaces.
+In statically typed functional programming, _typeclasses_ are often used in place of interfaces to achieve polymorphism (that is, writing code that works for multiple different types of values). [Fantasy-land](https://github.com/fantasyland/fantasy-land) is a JS standard for algebraic structures, which mostly employs _interfaces_ to achieve reuse. [Fp-ts](https://github.com/gcanti/fp-ts) is a popular library that contains the same algebraic structures from fantasy-land, except it's built on _typeclasses_. Typeclasses are much more extensible and lend themselves to certain type structures that would otherwise be complex to model with interfaces, at the cost of being a bit more verbose & clunky at times.
 
 For example, let's say we wanted to build a function that takes a value, turns it into a string, and logs it. Let's suppose we can't just call `JSON.stringify`, and we need each object to be able to specify its own logic to achieve stringification. 
 
@@ -73,7 +73,7 @@ Here, `logValue` works for _any_ value. We don't need to wrap the value in an ad
 declare function logValue<T>(t: T, stringable: Stringable<T>, equal: Equal<T>)
 ```
 
-Let's take a closer look at that `Equal` typeclass. In plain Javascript, it's often useful to compare two values. Oftentimes libraries take the shortcut of using the [_strict equality comparison algorithm_](https://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6) in times that it needs to determine if two values are equal. For example, `Set`s in Javascript determine equality using this algorithm. By default, a React `PureComponent` will compare props based on strict equality. The `reselect` library also uses strict equality to determine if parameters are the same. Sometimes this is fine, but other times it's useful to have finer-grained control over how two values are determined to be 'equal.'
+Let's take a closer look at that `Equal` typeclass. In plain Javascript, it's sometimes useful to compare two values. Oftentimes libraries take the shortcut of using the [_strict equality comparison algorithm_](https://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6) in times that it needs to determine if two values are equal. For example, `Set`s in Javascript determine equality using this algorithm. By default, a React `PureComponent` will compare props based on strict equality. The `reselect` library also uses strict equality to determine if parameters are the same. Sometimes this is fine, but other times it's useful to have finer-grained control over how two values are determined to be "equal."
 
 If we were to build this as an interface, it might look something like this:
 
@@ -141,22 +141,9 @@ Set {
 
 Oops! We wanted to remove duplicates, but `Set` can only make decisions based on referential equality.
 
-Let's write a function using our `Equal` typeclass which implements this functionality:
+Let's write a function using our `Equal` typeclass which implements this functionality correctly:
 
-```ts
-function removeDupes<T>(array: T[], eq: Equal<T>) {
-  return array.reduce((agg, current) => {
-    // take only values that aren't in the aggregate
-    if(agg.some(a => eq.equals(a, current))) {
-      return agg
-    } else {
-      return [...agg, current]
-    }
-  }, [] as T[])
-}
-```
-
-In order to use this with `User` values, we just need to construct an instance of `Equal<User>`:
+In order to use this with `User` values, we simply need to construct an instance of `Equal<User>`:
 
 ```ts
 /** Two users are equal if their ids are equal */
@@ -167,5 +154,111 @@ const userEq: Equal<User> = {
 }
 ```
 
+And then use it when invoking `removeDupes`:
 
+```ts
+const users = [{
+  id: 1, name: "Bob"
+}, {
+  id: 2, name: "Susan"
+}, {
+  id: 1, name: "Bob"
+}]
+
+console.log(removeDupes(users, userEq))
+```
+This logs:
+```
+[ { id: 1, name: 'Bob' }, { id: 2, name: 'Susan' } ]
+```
+
+which is much closer to what we'd expect.
+
+### Thinking in typeclasses
+
+Using typeclasses brings a slight shift of thinking when building polymorphic functions. Instead of restricting parameters to all subclasses of an interface, one simply introduces a type parameter, and then also adds a typeclass for the needed functionality, for example:
+
+Instead of working for only subclasses of `Talker`:
+```ts
+function speak(talker: Talker): string { ... }
+```
+typeclasses allow any values that have a `Talker` typeclass:
+```ts
+function speak<T>(talker: T, tc: Talker<T>): string { ... }
+```
+
+When using libraries that are built on typeclasses, instead of thinking, "Does this value implement the X interface," it's more useful to think "Is there an instance of typeclass X for this value?"
+
+## Creating typeclass instances
+
+The `Equal` typeclass we just wrote exists in fp-ts as `Eq`. Fp-ts also includes the `removeDupes` function we wrote, named as `uniq` (in its `Array` module). Let's get a feel for using the fp-ts library by using the fp-ts equivalents of the functions we built.
+
+Creating an instance of `Eq` is as simple as building a value that "implements" the `Eq` interface. Let's suppose we had a type that models coordinates on a 2d plane as tuples (an X value and a Y value), and we had a list of them:
+
+```ts
+type Point = [number, number]
+
+const points: Point[] = [
+  [1, 2],
+  [6, 7],
+  [1, 2]
+]
+```
+Let's say we wanted to remove each duplicate value before processing them further. We'll accomplish this in two steps: 
+
+1. Build an `Eq` typeclass instance for `Point`s.
+2. Use that `Eq` instance with the `uniq` function.
+
+All we need to do for the `Eq` instance is to build a value whose type is `Eq<Point>`. There's just one method we have to implement, and that's `equal(a: Point, b: Point) => boolean`:
+
+```ts
+import { Eq } from 'fp-ts/lib/Eq'
+
+const pointEq: Eq<Point> = {
+  equals(a: Point, b: Point) {
+    // ???
+  }
+}
+```
+
+what should the implementation of `equals` look like?
+
+<Spoiler label="Click to see equals">
+
+```ts
+const pointEq: Eq<Point> = {
+  equals(a: Point, b: Point) {
+    return a[0] === b[0] && a[1] === b[1]
+  }
+}
+```
+</Spoiler>
+
+The `uniq` function (unlike our `removeDupes` function) is curried, and takes the `Eq` instance first:
+
+```ts
+function uniq<A>(E: Eq<A>): (as: Array<A>) => Array<A>
+```
+
+It then returns a function that takes an array of those values, and returns a filtered version of that array, where equality between elements is determined by the `Eq` instance.
+
+```ts
+import { uniq } from 'fp-ts/lib/Array'
+
+const filterPoints = uniq(pointEq) // returns a function that will filter an array
+
+filterPoints(points) // returns a filtered list of points
+```
+
+### Composing typeclasses
+
+Constantly implementing typeclasses for straightforward values like combinations of numbers can get cumbersome. Fp-ts provides usefult utilities for building complex typeclasses by composing smaller ones. For instance, there is already an `Eq` instance which compares numbers, and there is already a function which builds a `Eq` instance for tuples that contain any value. Let's use these utilities to compose an `Eq` instance for `Point`s, rather than handcrafting our own.
+
+Two tuples are equal only if their contents are equal, so you can't simply have single typeclass instance for all tuples (Tuples have many different types of values!). You _could_ build one if you had other `Eq` instances for each value inside a tuple. That's exactly what the `getTupleEq` function does. our `Point` type is a tuple of two `number`s, so if we had an `Eq` instance for numbers, we can build an `Eq` instance for a tuple of `number`s! Luckily, fp-ts _also_ provides an `Eq` instance for `number`s:
+
+```ts
+import { Eq, getTupleEq, eqNumber } from 'fp-ts/lib/Eq'
+
+const pointEq: Eq<Point> = getTupleEq(eqNumber, eqNumber)
+```
 

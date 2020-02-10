@@ -1,0 +1,382 @@
+---
+title: Typeclasses in Typescript
+subtitle: A guide to using and building typeclasses in Typescript with fp-ts
+date: "2020-02-11T00:00:00.000Z"
+layout: post
+draft: false
+tags:
+  - javascript
+  - typescript
+  - typeclasses
+  - monad
+  - functional programming
+  - fp-ts
+---
+
+import { Spoiler } from "../../components/Spoiler";
+import { Callout } from "../../components/Callout";
+import { Footer, Source, SourceRef } from "../../components/Footer";
+
+In statically typed functional programming, _typeclasses_ are often used in place of interfaces to achieve polymorphism (that is, writing code that works for multiple different types of values). [Fantasy-land](https://github.com/fantasyland/fantasy-land) is a JS standard for algebraic structures, which mostly employs _interfaces_ to achieve reuse. [Fp-ts](https://github.com/gcanti/fp-ts) is a popular library that contains the same algebraic structures from fantasy-land, except it's built on _typeclasses_. Typeclasses are much more extensible and lend themselves to certain type structures that would otherwise be complex to model with interfaces, at the cost of being a bit more verbose & clunky at times.
+
+For example, let's say we wanted to build a function that takes a value, turns it into a string, and logs it. Let's suppose we can't just call `JSON.stringify`, and we need each object to be able to specify its own logic to achieve stringification. 
+
+Using an interface, this would look roughly like:
+
+```ts
+interface Printable {
+  print(): string
+}
+
+function logValue(value: Printable) {
+  console.log(value.print())
+}
+```
+
+This works fine, but comes with a few limitations. First, it can only be used with values from modules that depend on the `Printable` interface. For instance, in order to use it with a `string` value, you'd need to wrap it in an adapter object:
+
+```ts
+const name = "Paul"
+
+logValue(new StringPrintable(name))
+```
+
+This isn't too bad, but suppose we needed the functionality of two interfaces, we'd need a special adapter which implements both of those interfaces. The problem gets worse as we add interfaces.
+
+```ts
+const name = "Paul"
+
+logValue(new StringPrintableAndComparable(name))
+```
+
+In Typescript, we encode typeclasses with interfaces, but we separate the value from the method it's implementing. Instead of implementing that interface with our original value, we create a separate value and have that second value implement the interface. Whenever we need to write a function for some value that "implements" the typeclass, we just have our function take two values; the original value, and an _instance_ of a typeclass for that value.
+
+For example, let's build the same `logValue` function with a typeclass. Our `Printable` interface becomes a typeclass, and it needs to work for _any_ value, so we introduce a type parameter, `A` (The type is irrelevant to the definition of `Printable`, so we keep it concise). Our `print` function turns from a no-arg function, into a function that takes the value, `A`, and returns a string.
+
+```ts
+type Printable<A> = {
+  print(value: A): string
+}
+```
+
+Our `logValue` changes to take two values; the original value that we're converting, and an instance of the `Printable` typeclass for the original value (which will hold the logic for converting). We can use the `print` method on `Printable` instance, passing our original value in:
+
+```ts
+function logValue<T>(t: T, stringable: Printable<T>) {
+  console.log(stringable.print(t))
+}
+```
+
+Here, `logValue` works for _any_ value. We don't need to wrap the value in an adapter layer, and adding capabilities simply consists of adding typeclass parameters:
+
+```ts
+declare function logValue<T>(t: T, stringable: Printable<T>, equal: Equal<T>)
+```
+
+Let's take a closer look at that `Equal` typeclass. In plain Javascript, it's sometimes useful to compare two values. Oftentimes libraries take the shortcut of using the [strict equality comparison algorithm](https://www.ecma-international.org/ecma-262/5.1/#sec-11.9.6) in times that it needs to determine if two values are equal. For example, `Set`s in Javascript determine equality using this algorithm. By default, a React `PureComponent` will compare props based on strict equality. The `reselect` library also uses strict equality to determine if parameters are the same. Sometimes this is fine, but other times it's useful to have finer-grained control over how two values are determined to be "equal."
+
+If we were to build this as an interface, it might look something like this:
+
+```ts
+interface Equal {
+  equals(other: Equal): boolean
+}
+```
+
+and then a few implementations:
+```ts
+class User implements Equal {
+  constructor(private id: number) {}
+  equals(user: User) {
+    return user.id === this.id
+  }
+}
+
+class Point implements Equal {
+  constructor(private x: number, private y: number) {}
+  equals(point: Point) {
+    return this.x === point.x && this.y === point.y 
+  }
+}
+```
+
+However this isn't totally accurate, For example, I can have two different instances of `Equal`s, but I can still compare them, while satisfying the typechecker:
+
+```ts
+const user: Equal = new User(1)
+const point: Equal = new Point(15, 30)
+
+user.equals(point) // type-checks, but is logically unsound
+```
+
+To make this more type-safe, we can use a typeclass to model the `Equal` interface. Instead of building a method that takes a single parameter, we build a method that takes two parameters; the original value to operate on, and an additional parameter to compare it to:
+
+```ts
+type Equal<A> = {
+  equals(left: A, right: A)
+}
+```
+
+Since the two parameters are fixed on a single type, there's no chance to mess this up. Using this new typeclass, let's build a function that takes in an array of values and removes the duplicates. You may be tempted to just create a `Set` from the array, but `Set` uses strict equality checking, which may lead to surprising results:
+
+```ts
+const users = [{
+  id: 1, name: "Bob"
+}, {
+  id: 2, name: "Susan"
+}, {
+  id: 1, name: "Bob"
+}]
+
+console.log(new Set(users))
+```
+
+This logs:
+```
+Set {
+  { id: 1, name: 'Bob' },
+  { id: 2, name: 'Susan' },
+  { id: 1, name: 'Bob' } }
+```
+
+Oops! We wanted to remove duplicates, but `Set` can only make decisions based on referential equality.
+
+Let's write a function using our `Equal` typeclass which implements this functionality correctly:
+
+In order to use this with `User` values, we simply need to construct an instance of `Equal<User>`:
+
+```ts
+/** Two users are equal if their ids are equal */
+const userEq: Equal<User> = {
+  equals(l, r) {
+    return l.id === r.id
+  }
+}
+```
+
+And then use it when invoking `removeDupes`:
+
+```ts
+const users = [{
+  id: 1, name: "Bob"
+}, {
+  id: 2, name: "Susan"
+}, {
+  id: 1, name: "Bob"
+}]
+
+console.log(removeDupes(users, userEq))
+```
+This logs:
+```
+[ { id: 1, name: 'Bob' }, { id: 2, name: 'Susan' } ]
+```
+
+which is much closer to what we'd expect.
+
+
+
+
+
+### Thinking in typeclasses
+
+Using typeclasses brings a slight shift of thinking when building polymorphic functions. Instead of restricting parameters to all subclasses of an interface, you just introduce a type parameter, and then also add a typeclass for the needed functionality, for example:
+
+Instead of working for only subclasses of `Talker`:
+```ts
+function speak(talker: Talker): string { ... }
+```
+typeclasses allow any values that have an instance of the `Talker` typeclass:
+```ts
+function speak<T>(talker: T, tc: Talker<T>): string { ... }
+```
+
+When using libraries that are built on typeclasses, instead of thinking, "Does this value implement the X interface," it's more useful to think "Is there an instance of typeclass X for this value?"
+
+## Creating typeclass instances
+
+The `Equal` typeclass we just wrote exists in fp-ts as `Eq`. Fp-ts also includes the `removeDupes` function we wrote, named as `uniq` (in its `Array` module). Let's get a feel for using the fp-ts library by using the fp-ts equivalents of the functions we built.
+
+Creating an instance of `Eq` is as simple as building a value that "implements" the `Eq` interface. Let's suppose we had a type that models coordinates on a 2d plane as tuples (an X value and a Y value), and we had a list of them:
+
+```ts
+type Point = [number, number]
+
+const points: Point[] = [
+  [1, 2],
+  [6, 7],
+  [1, 2]
+]
+```
+Let's say we wanted to remove each duplicate value before processing them further. We'll accomplish this in two steps: 
+
+1. Build an instance of the `Eq` typeclass for `Point`s.
+2. Use that `Eq` instance with the `uniq` function.
+
+All we need to do make the `Eq` instance is to build a value whose type is `Eq<Point>`. There's just one method we have to implement, and that's `equal(a: Point, b: Point) => boolean`:
+
+```ts
+import { Eq } from 'fp-ts/lib/Eq'
+
+const pointEq: Eq<Point> = {
+  equals(a: Point, b: Point) {
+    // ???
+  }
+}
+```
+
+what should the implementation of `equals` look like?
+
+<Spoiler label="Click to see equals">
+
+```ts
+const pointEq: Eq<Point> = {
+  equals(a: Point, b: Point) {
+    return a[0] === b[0] && a[1] === b[1]
+  }
+}
+```
+</Spoiler>
+
+The `uniq` function (unlike our `removeDupes` function) is curried, and takes the `Eq` instance first:
+
+```ts
+function uniq<A>(E: Eq<A>): (as: Array<A>) => Array<A>
+```
+
+It then returns a function that takes an array of those values, and returns a filtered version of that array, where equality between elements is determined by the `Eq` instance.
+
+```ts
+import { uniq } from 'fp-ts/lib/Array'
+
+const filterPoints = uniq(pointEq) // returns a function that will filter an array
+
+filterPoints(points) // returns a filtered list of points
+```
+
+### Composing typeclasses
+
+Constantly implementing typeclasses for straightforward values like combinations of numbers can quickly become cumbersome. Fp-ts provides useful utilities for building complex typeclasses by composing smaller ones. For instance, there is already an `Eq` instance which compares numbers, and there is already a function which builds a `Eq` instance for tuples that contain any value. Let's use these utilities to compose an `Eq` instance for `Point`s, rather than handcrafting our own.
+
+```ts
+import { Eq, getTupleEq, eqNumber } from 'fp-ts/lib/Eq'
+
+const pointEq: Eq<Point> = getTupleEq(eqNumber, eqNumber)
+```
+
+<Callout>
+Two tuples are equal only if their contents are equal, so you can't have one typeclass instance for all tuples (since tuples have many different types of values!), `getTupleEq` "solves" this by taking any number of tuple instances for the values inside and constructing one on the fly.
+</Callout>
+
+
+## The Monoid typeclass
+
+The `Monoid` typeclass from fp-ts abstracts over how to _combine_ two values.
+
+It contains just two members:
+```ts
+interface Monoid<A> {
+  empty: A;
+  concat: (x: A, y: A) => A;
+}
+```
+
+`concat` encapsulates the logic to combine the values, and `empty` is a value of the same type that represents a 'zero' value. We can make an instance of `Monoid<number>` to represent combining two numbers with addition:
+
+```ts
+const addition: Monoid<number> = {
+  empty: 0,
+  concat: (a, b) => a + b
+}
+
+addition.concat(4, 8) // 12
+```
+
+What can we do with this now? Let's take a look at a useful method from fp-ts, foldMap.
+
+Let's introduce this method with a thought experiment. Let's suppose you have a list of _apples_ and you have way to _combine two apples_ into one apple. Given these two things, you should be able to take that list and "squash" it into one, taking each apple and combining it with the previous one.
+
+Let's also suppose that you have a list of "bananas" and a way to combine two oranges into one orange. What would you need to combine the list of bananas into a single orange? If you had a way to turn bananas into oranges, you could iterate over the bananas, turning each one into an orange, and then combine them once they're in their orange state.
+
+This is the pattern behind `foldMap`, except it's _generalized_, meaning it works for a list of any kind of contents, `A`, and any kind of combination method for `B` (`Monoid<B>`), as long as we have a way to turn those `A`'s into `B`'s.
+
+Here's the signature for `foldMap`:
+
+```ts
+foldMap: <B>(M: Monoid<B>) => <A>(f: (a: A) => B) => (fa: A[]) => B
+```
+
+It can be broken up into three different parts, let's take it one section at a time: 
+
+`<B>(M: Monoid<B>)`, which returns a: `<A>(f: (a: A) => B)`, which returns a `(fa: A[]) => B`
+
+This function allows us to take an array of values of type `A`, a monoid for values of type `B`, and a function which turns `A`'s into `B`'s, and finally, returns a single `B`. Phew that was a mouthful, let's use this to count all the login counts across some users.
+
+```ts
+import { Monoid } from "fp-ts/lib/Monoid";
+import { foldMap } from "fp-ts/lib/Array";
+
+type User = {name: string, logins: number}
+
+const users: User[] = [
+  { name: "Paul", logins: 10 },
+  { name: "Sue", logins: 7 },
+  { name: "Bob", logins: 8 }
+];
+
+foldMap(addition)((u: User) => u.logins)(users); // 25
+```
+
+`foldMap` allows us to combine values by transforming them into something our `Monoid` can combine. If there are no items in the list, then `foldMap` simply takes the `zero` value from the `Monoid`.
+
+This is similar to `sumBy` in lodash:
+
+```ts
+_.sumBy(users, u => u.logins)
+```
+
+The difference here is that we can use _any_ Monoid to combine these values, not just the addition Monoid! What if we wanted to compute whether or not all of the users in our list are frequent users? We'd want to reduce the array to `true` if all of the users have logged in at least five times, and false if one of them have not.
+
+First, we'd want to map each user to a `boolean` (`true` if they have logged in five time, `false` otherwise), then we'd want to combine those `boolean` values with a monoid that operates on boolean values.
+
+```ts
+declare const andMonoid: Monoid<Boolean>;
+
+const userIsFrequent = (u: User) => u.logins > 4
+
+foldMap(andMonoid)(userIsFrequent)(users); // true
+```
+
+what does the implementation of `andMonoid` need to be in order to facilitate this? Try implementing this on your own and test the results with various arrays of users.
+
+<Spoiler label="Click to see andMonoid">
+
+```ts
+const andMonoid: Monoid<Boolean> = {
+  empty: true,
+  concat: (a, b) => a && b
+}
+```
+</Spoiler>
+
+as another exercise, try to implement `foldMap`:
+```ts
+const foldMap: <B>(M: Monoid<B>) => <A>(f: (a: A) => B) => (as: A[]) => B =
+  M => fab => as => {
+    // M.concat combines two b's
+    // M.empty is the "empty" state of 'b'
+    // fab converts an 'a' into a 'b'
+    // as is an array of 'a's
+  }
+```
+
+<Spoiler label="Click to see foldMap">
+
+```ts
+const myFoldMap: <B>(M: Monoid<B>) => <A>(f: (a: A) => B) => (as: A[]) => B =
+  M => fab => as =>
+    as.reduce((b, a) => {
+      return M.concat(b, fab(a))
+    }, M.empty)
+```
+</Spoiler>

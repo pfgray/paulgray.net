@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from "gatsby-link";
-import me from '../img/me.png';
 
 // todo: make active link rendering better...
 

@@ -3,7 +3,7 @@ import Helmet from "react-helmet";
 import ColoredTag from "./ColoredTag";
 import { graphql } from "gatsby";
 import { MDXRenderer } from "gatsby-plugin-mdx";
-import { MDXProvider } from "@mdx-js/tag";
+import { MDXProvider } from "@mdx-js/react";
 import AutoLinkedHeading from "../components/AutoLinkedHeading";
 
 class BlogPostTemplate extends React.Component {

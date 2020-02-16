@@ -1,0 +1,82 @@
+---
+title: Higher Kinded Types in Typescript
+subtitle: What's a Higher Kinded type and when you would use one
+date: "2020-02-10T00:00:00.000Z"
+layout: post
+draft: true
+tags:
+  - javascript
+  - typescript
+  - higher kinded types
+  - typeclasses
+  - functional programming
+---
+
+Generics in Typescript give us the ability to build _parametrically polymrphic_ functions, that is, functions that work for _any_ value. The generic support built into typescript, however, cannot capture all types of values, and one place that it falls short is that type parameters cannot take type parameters themselves. Let's take a look at an example to get a feel of what this means:
+
+Let's take a look at a few types of similar-looking objects and try to build a typeclass that encapsulates the similarities.
+
+The first one is `Option`:
+```ts
+interface Option<A> {
+  map<B>(f: (a: A) => B): Option<B>
+}
+```
+
+Next is `Task`:
+```ts
+interface Task<A> {
+  map<B>(f: (a: A) => B): Task<B>
+}
+```
+
+and finally, we have `Array`:
+```ts
+interface Array<A> {
+  map<B>(f: (a: A) => B): Array<B>
+}
+```
+
+Here, we see a common pattern starting to rise. We'd like to extract this common `map` function to be able to build code that works for _any_ value that's similar.
+
+Let's attempt to build a typeclass for this `map` method. Recall that a typeclass is similar to an interface, except it lives separately from the original value, and takes it as a parameter.
+
+Our first attempt might look like this, simply replacing `Option`, `Task`, and `Array` with a type parameter, `F`:
+```ts
+type Mappable<F> = {
+  map<A, B>(fa: F<A>, ab: (a:A) => B): F<A>
+}
+```
+
+However, this fails with the error:
+
+```
+Type 'F' is not generic.
+```
+
+This is because Typescript does not support _Higher Kinded Types_ (or, HKTs, for short). HKTs give us the flexibility to allow type parameters themselves to be generic. You can also think of HKTs as being "_generic_ generics."
+
+Luckily, we can emulate Higher Kinded Types in Typescript using a combination of a few Typescript techniques.
+
+## Step 1: Make a type that holds two other types:
+
+```
+interface HKT<URI, A> {
+  readonly _URI: URI
+  readonly _A: A
+}
+```
+
+Since we'd like to do something like: `F<A>`, we just need to keep track of `F` and `A` separately, and bring them back together later. So now, with this `HKT` type, we can represent our fictional `F<A>` as the very real: `HKT<F, A>`. Whenever you see: `HKT<F, A>`, just think in your mind: `F<A>`.
+
+Now we can represent our `Mappable` typeclass:
+```ts
+type Mappable<F> = {
+  map<A, B>(fa: HKT<F, A>, ab: (a:A) => B): HKT<F, A>
+}
+```
+
+So map takes a `F<A>`, and a function, `(a: A) => B` and returns an `F<B>`!
+
+## Step 2: A Global `interface` for _all_ higher kinded types.
+

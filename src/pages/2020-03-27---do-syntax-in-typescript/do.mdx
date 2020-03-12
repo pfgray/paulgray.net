@@ -1,0 +1,366 @@
+---
+title: Approximating haskell's do syntax in Typescript
+subtitle: An introduction to Do from fp-ts-contrib
+date: "2020-03-27T00:00:00.000Z"
+layout: post
+draft: false
+tags:
+  - javascript
+  - typescript
+  - typeclasses
+  - monad
+  - functional programming
+  - fp-ts
+---
+
+import { Spoiler } from "../../components/Spoiler";
+import { Callout } from "../../components/Callout";
+import { Footer, Source, SourceRef } from "../../components/Footer";
+
+## A Doomed Pyramid
+
+The pyramid of doom is a problem that's plagued callbacks/promises since they were introduced to the Javascript language. If you've used fp-ts for any length of time, you've probably noticed that this problem isn't specific to asynchronous code. For example, this expression which sums three optional numbers:
+
+```ts
+option.chain(maybeA, a =>
+  option.chain(maybeB, b =>
+    option.map(maybeC, c =>
+      a + b + c
+    )
+  )
+)
+```
+
+This, of course looks similar to how we'd deal with fetching numbers from some external service:
+
+```ts
+fetchA.then(a =>
+  fetchB.then(b => 
+    fetchC.then(c => a + b + c)
+  )
+)
+```
+
+Also, suppose these numbers were stored in either values, and we wanted to compute the sum, or return early with an error:
+
+```ts
+either.chain(errorOrA, a =>
+  either.chain(errorOrB, b =>
+    either.map(errorOrC, c =>
+      a + b + c
+    )
+  )
+)
+```
+
+<Callout>
+
+Note: You may have noticed that we could have used something like `Promise.all` to combine all of our fetched numbers. In this case, it's true (disregarding the fact that `all` executes in parallel), however, as soon as we need to use the output of the previously chained value as input to the next, we're back to nesting `chain`s.
+
+</Callout>
+
+JavaScript has added async await syntax, which helps avoid this problem for promises:
+
+```ts
+const a = await fetchA;
+const b = await fetchB;
+const c = await fetchC;
+
+return a + b + c;
+```
+
+This is nice, but it only works for promises; it won't work for option chains, either chains, or any other chainable. It would be nice if we had something like this that would work for _all_ chainable (monad) values.
+
+This pattern happens quite often in functional programming, and certain fp languages even have special syntax sugar for expressing chains like these in a succinct manner, such as Haskell's [do notation](https://en.wikibooks.org/wiki/Haskell/do_notation), or Scala's [for comprehension](https://docs.scala-lang.org/tour/for-comprehensions.html). There have been a few attempts to mimic this syntax in JS. One popular way is to use generators. Generators don't work for all monads, and they have poor typescript support. It would be nice to have something that works with typescript, and supports all monads.
+
+`Do` is an attempt at this. It uses the builder pattern to collect the successful value from each chainable, and stores them in an object. At each successive step, the result of any chainable from previous values in the chain is accessible, making it possible to prevent nested callback situations, which can help make code clearer.
+
+### Do for Option:
+
+Let's get a feel for how `Do` works by using it with the previous examples:
+
+Here we have 3 `Option` values each chained successively:
+
+```ts
+import { option, Option } from 'fp-ts/lib/Option'
+const maybeA: Option<number> = ...
+const maybeB: Option<number> = ...
+const maybeC: Option<number> = ...
+
+option.chain(maybeA, a =>
+  option.chain(maybeB, b =>
+    option.map(maybeC, c =>
+      a + b + c
+    )
+  )
+)
+```
+
+The `Do` equivalent of this snippet is:
+
+```ts
+import { Do } from 'fp-ts-contrib/lib/Do'
+
+const result = 
+  Do(option)
+    .bind("a", maybeA)
+    .bind("b", maybeB)
+    .bind("c", maybeC)
+    .return(({a, b, c}) => a + b + c)
+```
+
+At each `bind` step, we're passing an identifier, and an `Option<number>` value. Each step will only continue on if the previous value was present. Finally, the last return statement, the provided values at `a`, `b`, and `c`, are each `number`s. The function here can be used to transform the result value. Remember, each step only gets invoked if all of the previous options were defined. For example, let's say that `maybeA`'s  value was `some(5)`, `maybeB`'s value was `none`, and `maybeC`'s value was `some(6)`. The `Do` chain would stop at the second step, and the result of the entire `Do` expression would be `none`.
+
+```ts
+const result =
+  Do(option)
+    .bind("a", some(5))
+    .bind("b", none)
+    .bind("c", some(6))
+    .return(({a, b, c}) => a + b + c)
+    
+result // evaluates to: 'none'
+```
+
+If all of the values were defined, then we'd reach the `return`, and the result of the expression would be `some(sum)`, where `sum` is the value returned by the `return` function:
+
+```ts
+const result =
+  Do(option)
+    .bind("a", some(5))
+    .bind("b", some(2))
+    .bind("c", some(6))
+    .return(({a, b, c}) => a + b + c)
+    
+result // evaluates to 'some(11)'
+```
+
+### Do for Either
+
+When using `Do` with `Either` values it behaves similarly to `Option`. Each step will only continue if the value it encounters is a `right` value. If a `left` value is encountered, the whole chain "short-circuits," and returns with that left value.
+
+Here's a snippet of code that doesn't use `Do`:
+```ts
+import { either, Either } from 'fp-ts/lib/Either'
+const errorOrA: Either<string, number> = ...
+const errorOrB: Either<string, number> = ...
+const errorOrC: Either<string, number> = ...
+
+either.chain(errorOrA, a =>
+  either.chain(errorOrB, b =>
+    either.map(errorOrC, c =>
+      a + b + c
+    )
+  )
+)
+```
+
+And here's that same snippet, with `Do`:
+
+```ts
+const result =
+  Do(either)
+    .bind("a", errorOrA)
+    .bind("b", errorOrB)
+    .bind("c", errorOrC)
+    .return(({a, b, c}) => a + b + c)
+```
+
+As stated, if we encounter a left value at any point in the chain, the whole chain will fallback with that left value (since that is the behavior of `either`'s `chain` function):
+
+```ts
+const result =
+  Do(either)
+    .bind("a", right(5))
+    .bind("b", left("error getting b"))
+    .bind("c", right(10))
+    .return(({a, b, c}) => a + b + c)
+
+result // is: left("error getting b")
+```
+
+If every value is right, then we'll reach the end, however, if we encounter a left value at any point in the chain, the whole chain will fallback with that left value:
+
+```ts
+const result =
+  Do(either)
+    .bind("a", right(5))
+    .bind("b", left("error getting b"))
+    .bind("c", right(10))
+    .return(({a, b, c}) => a + b + c)
+
+result // is: left("error getting b")
+```
+
+# The API
+
+The `Do` function takes an instance of a Monad typeclass, which handles the chaining of the values that you pass as the second parameter to `bind`. The type of the typeclass instance also determines the _type_ of values you will be able to chain. For instance, `Do(option)` will enable you to chain `Option` values (since `option`'s type is `Monad1<"Option">`'). `Do(either)` will enable you to chain `Either` values (since `either`'s type is `Monad2<"Either">`). The value returned from `Do` is a builder that will let you create chains of these monads.
+
+## .bind
+
+`.bind` takes a `string` identifier, and an instance of the contextual monad. It will extract the "inner" value from the monad and assign it to a context object, which will make it available in subsequent methods:
+
+```ts
+Do(option)
+  .bind("user", some({name: "Bob", age: 54}))
+  .return(context => {
+    context.user // <-- Bob is stored here
+  })
+```
+
+The builder will maintain every key, adding each value to it's context object.
+Note that in the `return` function, `context.user`'s and `context.manager`'s types are `User`, not `Option<User>`. `bind` "extracts" the values for us, in the same way that `async` "extracts" the value out of a promise.
+
+```ts
+Do(option)
+  .bind("user", some({name: "Bob", age: 54}))
+  .bind("manager", some({name: "April", age: 46}))
+  .return(context => {
+    context.user // <-- Bob is stored here
+    context.manager // <-- April is stored here
+  })
+```
+
+## .do
+`.do` is similar to `bind`, except you don't pass an identifier, and the resulting value isn't stored in the context. 
+
+```ts
+declare function findManagerFor(name: string): Option<User>
+Do(option)
+  .bind("user", some({name: "Bob", age: 54}))
+  .do(findManagerFor("Bob"))
+  .return(context => {
+    context.user // <-- Bob is stored here
+  })
+```
+
+We'd use `do` here if we only cared that a manager for `Bob` existed, and not any details about that manager.
+
+## .sequenceS
+`sequenceS` (like `bind`) also extracts values, but underneath the hood uses `ap` instead of `chain`, which allows you to combine values in "parallel." One place this is useful is when validating data:
+
+```ts
+// ISO strings
+const startTime: string = "2020-03-27T02:00:00Z"
+const endTime: string = "2020-03-27T02:30:00Z"
+
+// a typeclass instance for validation
+const validation = getValidation(getMonoid<string>())
+
+// ensures ISO is valid
+function isDate(isoString: string): Either<string[], Date> {...}
+
+const result =
+  Do(validation)
+    .sequenceS({
+      start: isDate(startTime),
+      end: isDate(endTime)
+    })
+    .return(context => {
+      context.start // type is Date
+      context.end   // type is Date
+    })
+```
+
+Since we've used `sequenceS` here, If both `startTime` and `endTime` are invalid, `result` will be a `Left` containing _both_ of the errors. This is because `.sequenceS` uses `validation`'s `ap`, and `.bind` uses `chain`. Consider if we used `bind` instead:
+
+```ts
+const result =
+  Do(validation)
+    .bind("start", isDate(startTime))
+    .bind("end", isDate(endTime))
+    .return(context => {
+      context.start // type is Date
+      context.end   // type is Date
+    })
+```
+In this example, if `startTime` and `endTime` are invalid, then `result` will only contain the error from checking `startTime`, since `chain` short-circuits.
+
+
+
+## .let
+
+`let` is the simplest of these, and just allows us to introduce identifiers without breaking the expression:
+
+```ts
+Do(option)
+  .bind("user", some({name: "Bob", age: 54}))
+  .let("count", 1)
+  .return(context => {
+    context.count // is 1
+  })
+```
+
+## .doL/.bindL/.sequenceSL/.letL variants
+
+Each of the above methods has an `L` variant, `.doL`, `.bindL`, `.sequenceSL`, and `.letL`. These variants work exactly like their counterparts, except that the second parameter is a function (lamda, hence the `L` suffix) which returns the monad value. The parameter to the function is the context object that `Do` maintains. This makes it easy to extract & chain monads whose values depend on extracted values from previous steps in the chain.
+
+Here's an adaption of the date validation example from above. Let's suppose that we also want to validate that the `startTime` is _before_ `endTime`. For that, we'll need the actual `Date` values that are extracted from the ISO values. This can only happen if we've succesfully validated the `startTime` and `endTime` ISO strings, though:
+
+```ts
+// ISO strings
+declare const startTime: string
+declare const endTime: string
+
+// ensures ISO is valid
+declare function isDate(isoString: string): Either<string[], Date>
+// ensures start is before end
+declare function startIsBeforeEnd(start: Date, end: Date): Either<string[], number>
+
+const result =
+  Do(validation)
+    .sequenceS({ // check ISO strings
+      start: isDate(startTime),
+      end: isDate(endTime)
+    })
+    .bindL("startIsBefore", context => {
+      // the bindL variant gives us access to 
+      // start and end values
+      return startIsBeforeEnd(context.start, context.end);
+    })
+    .return(context => {
+      context.start // type is Date
+      context.end   // type is Date
+    })
+```
+
+## .return
+
+`return` allows us to map the `context` value to another value (the final value we want to "get out" of the chain). It determines the final type of the entire expression:
+
+```ts
+const result =
+  Do(option)
+    .bind("user", some({name: "Bob", age: 54}))
+    .return(context => {
+      return context.user.age
+    })
+
+result // Option<number>
+```
+
+Here, the type of `result` is `Option<number>`, since `number` is the return type of the function passed to `.return`.
+
+## .done
+
+`done` does the same thing as `return`, except it doesn't give us a mapper, it just returns the context object:
+
+```ts
+const result =
+  Do(option)
+    .bind("user", some({name: "Bob", age: 54}))
+    .bind("manager", some({name: "April", age: 46}))
+    .done()
+
+result // Option<{ user: User, manager: User }>
+```
+
+Here, the type of `result` is `Option<{ user: User, manager: User }>`, since we've bound `"user"` and `"manager"` to the context object.
+
+
+
+
+As complexity of your chain grows, so does the added value of `Do`.
+
+Here's a lengthy involved example which expands on our validation error previously: https://paulgray.net/notes/do-validation/
+

@@ -58,7 +58,7 @@ pre[class*="language-"] {
 .token.prolog,
 .token.doctype,
 .token.cdata {
-	color: #474747; /* base1 */
+	color: #808080; /* base1 */
 }
 
 .token.punctuation {
@@ -90,7 +90,7 @@ pre[class*="language-"] {
 }
 
 .token.entity {
-	color: #f8f8f2; /* base00 */
+	color: #6eca97; //#f8f8f2; /* base00 */
 }
 
 .token.atrule,
@@ -122,9 +122,8 @@ pre[class*="language-"] {
 	cursor: help;
 }
 
-
-:not(pre) code[class="language-text"] {
+:not(pre) > code[class="language-text"] {
 	display: inline-block;
-	color: #2d5572;
+	color: #244761;
 	background-color: #c1dcf0;
 }

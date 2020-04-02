@@ -21,7 +21,7 @@ ul.links {
 ul.links a {
   color: #777;
   text-decoration: none;
-  border-right: 3px solid white;
+  border-right: 3px solid rgba(0,0,0,0);
   padding-right: 0.25em;
 }
 
@@ -32,6 +32,7 @@ ul.links a.active {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  background-color: #f6f6f6;
 }
 
 .subtitle {

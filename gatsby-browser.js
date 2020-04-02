@@ -1,5 +1,6 @@
+
 const ReactGA = require("react-ga");
-require("prismjs/themes/prism-solarizedlight.css");
+require("./src/css/prism_theme.scss");
 
 ReactGA.initialize("UA-60737789-1");
 

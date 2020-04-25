@@ -1,0 +1,141 @@
+---
+title: Algebraic Data Types in Typescript
+subtitle: A look into algebraic data types
+date: "2020-05-01T00:00:00.000Z"
+layout: post
+draft: false
+tags:
+  - typescript
+  - functional programming
+  - adt
+---
+
+
+
+## Explicitness through types
+
+When programming, it's often useful to think about the different values a variable can hold over time. Types can make this easier to understand, provide safety nets, and also serve as ad-hoc documentation, making an author's intent clearer to the reader.
+
+By combining a few features from typescript, we can model these different values explicitly, which communicates our intent clearly, and gives us more confidence while making changes.
+
+### Inhabitants 
+In type theory, the set of values a type can hold are called its _inhabitants_. If a value abides by the contract of a type, it is said to _inhabit_ that type. For example, the type `boolean` has two inhabitants, since a value of type `boolean` can be either `true` or `false`. How many inhabitants does `number` have? The answer is engine-specific. In Node `v12.16.2`, looking at `MAX_VALUE` and `MIN_VALUE` gives us:
+
+```
+Welcome to Node.js v12.16.2.
+Type ".help" for more information.
+> Number.MAX_VALUE
+1.7976931348623157e+308
+> Number.MIN_VALUE
+5e-324
+```
+
+A value of type `number` can hold any number that's inside that range, plus negative numbers, `0`, and `Infinity`. Phew, hat's a lot of inhabitants!
+
+### Sum Types
+
+In general, it's not terribly useful to think about the number of inhabitants of large types like `number`, but rather how the inhabitant count changes when we combine different types. For instance, let's say we have a value that can be a `boolean` _or_ a `number`:
+
+```ts
+const myNumber: boolean | number = ...
+```
+
+What are the possible values that this type can hold? The answer is all of the inhabitants of the `boolean` type, _plus_ all of the inhabitants of the `number` type (after removing duplicate values). This is true for any types we combine with the `|` operator. This relationship is why you'll sometimes hear someone refer to this as a _sum_ type, since the count of inhabitants are "summed," or "added" together.
+
+How many inhabitants does the type `boolean | 'foo' | 'bar'` have? The answer is 4, since `boolean` has 2, and `'foo'` and `'bar'` each have 1; `2 + 1 + 1` = `4`.
+
+### Product types
+
+What happens to the count inhabitants when instead of having one value be two types, we have two separate values in one type? For instance, let's say we have a tuple where the first item can be a boolean, and the second number can be a `boolean`:
+```ts
+const myBooleans: [boolean, boolean] = ...
+```
+
+The total number of possible values `myBooleans` can hold is 4. We can list them out in a table, where each column is an index in the tuple:
+
+```
+[true,  true ]
+[false, true ]
+[true,  false]
+[false, false]
+```
+
+Let's do another example, suppose we have a `boolean` and a value that can be `'foo' | 'bar' | 'baz'`:
+
+```ts
+const myValues: [boolean, 'foo' | 'bar' | 'baz'] = ...
+```
+The possible values that `myValues` can hold are listed in this table:
+
+```
+[true,  'foo']
+[true,  'bar']
+[true,  'baz']
+[false, 'foo']
+[false, 'bar']
+[false, 'baz']
+```
+
+From these tables, we can see that we could also calculate the count of inhabitants of a tuple type by _multiplying_ the inhabitants of each member. In the above example, `boolean` has 2 inhabitants, while `'foo' | 'bar' | 'baz'` has 3. Therefore, the total inhabitants of `[boolean, 'foo' | 'bar' | 'baz']` is 6, because `2 * 3` = `6`.
+
+Record types also share this property with tuples, for instance, suppose we had a `UserDetails` object with these properties:
+
+```ts
+type UserDetails = {
+  registered: boolean,
+  role: 'admin' | 'manager' | 'user'
+}
+```
+
+How many inhabitants does the `UserDetails` type have? Since `UserDetails` specifies a value that combines multiple other values, we multiply the inhabitants of those other values. Since `boolean` has 2 inhabitants, and `'admin' | 'manager' | 'user'` has 3 types, and `2 * 3` = `6`, we can see that `UserDetails` has 6 inhabitants.
+
+This relationship is why these types are considered _product_ types, since we multiply the inhabitants of each type combined.
+
+### Algebraic Data Types
+
+Together, product types and sum type provide us with an "algebra" with which we can combine types. Algebraic data types (or, ADT for short), are just types that are a combination of product and sum types. Minimizing the amount of inhabitants our types contain can have a positive impact on readability and type safety. Let's consider an example of using an ADT to represent the state of our app while fetching a user's details.
+
+When the user details page loads, it should request a value with type `UserDetails`, so we'll need a place to store it when we get it back. We also need to store whether or not the request is loading. A naive approach might structure the type of our state like this:
+
+```ts
+type UserDetailsPageState = {
+  isLoading: boolean,
+  details?: UserDetails
+}
+```
+
+How many inhabitants does this type have (let's assume for now UserDetails has 1)? Here's a table that outlines the different types:
+
+```
+{isLoading: true,  details: undefined}
+{isLoading: false, details: undefined}
+{isLoading: true,  details: {...}}
+{isLoading: false, details: {...}}
+```
+
+There's 4 different inhabitants here that we can construct in this type. Not all of these values make logical sense, though. For instance, what would the value `{isLoading: false, details: undefined}` mean? We're not loading, and we don't have the data? Conversely, `{isLoading: true, details: {...}}` doesn't make sense either, since we can't have the data but also be loading the data.
+
+The logic for rendering this state will look something like: 
+```tsx
+if(!state.isLoading && state.details) {
+  return <div>{state.details}</div>
+} else {
+  return <div>Loading...</div>
+}
+```
+
+Notice how we had to check that `state.details` was present, even when  . Even if we're careful enough to only set `details` when `isLoading` is false, there's no way for the compiler to ensure this, so we must check it every time we access it to satisfy the compiler.
+
+There's also a few states that we haven't really addressed: The state before we've fetched anything, the state when the request has errored, or any "reloading" state.
+
+### Discriminant value
+
+Let's try modelling these states with an Algebraic Data Type. combining the different states with the `|` operator. We'll want to add initial, error and reloading states while we're at it.
+
+```ts
+type 
+```
+
+
+
+

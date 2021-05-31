@@ -107,7 +107,7 @@ Note the reversal of the `s1`/`s2` parameters, and the arrangement of the parame
 
 Using the new curried versions of each function we arrive at:
 
-```ts
+```typescript
 pipe(
   "foo",
   s => concat("bar")(s),
@@ -119,13 +119,13 @@ pipe(
 
 An interesting pattern has emerged... Every anonymous function we've used in the pipe takes the value passed to it as the last argument in its own argument list. In JavaScript, you can replace the expression `s => <expression>(s)` with `<expression>`. So, for example, you can replace:
 
-`s => concat("bar")(s)` with `concat("bar")`
+`s => concat("bar")(s)` with `concat("bar")`,
 
-`s => len(s)` with `len`
+`s => len(s)` with `len`,
 
 `n => multiply(2)(n)` with `multiply(2)`, and
 
-`n => clamp(0, 10)(n)` with `clamp(0, 10)`
+`n => clamp(0, 10)(n)` with `clamp(0, 10)`.
 
 Let's make those replacements in our snippet:
 
@@ -190,7 +190,7 @@ Since the only requirement for a function to be used in a pipe chain is that the
 const partition = (f: (a: A) => boolean) => (as: Array<A>): Array<Either<A, B>> => ...
 ```
 
-Since the last parameter is an array, we can inject this function anywhere inside of a `pipe` chain with an an Array:
+Since the last parameter is an array, we can inject this function anywhere inside of a `pipe` chain with an array:
 
 ```ts
 pipe(

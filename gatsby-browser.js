@@ -1,5 +1,5 @@
 const ReactGA = require("react-ga");
-require("./src/css/prism_theme_light.scss");
+require("./src/css/paulgray_net_light_prism_theme.css");
 
 ReactGA.initialize("UA-60737789-1");
 

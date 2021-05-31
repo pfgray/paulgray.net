@@ -1,4 +1,4 @@
-$main-fg: #808080;
+$main-fg: #505050;
 $main-bg: #f0f3f4; // #e8e8e8;
 
 $color1: #00aed0;
@@ -67,7 +67,7 @@ pre[class*="language-"] {
 .token.prolog,
 .token.doctype,
 .token.cdata {
-  color: #bdbdbd; // lighten($main-fg, 23%); // #adadad; /* base1 */
+  color: lighten($main-fg, 32%); // #bdbdbd; // lighten($main-fg, 23%); // #adadad; /* base1 */
 }
 
 .token.punctuation {

@@ -1,0 +1,241 @@
+---
+title: Pipeable APIs
+subtitle: An introduction to pipeable APIs in fp-ts
+date: "2021-05-30T00:00:00.000Z"
+layout: post
+draft: true
+tags:
+  - javascript
+  - typescript
+  - functional programming
+  - fp-ts
+---
+
+
+
+Pipeable APIs provide flexibility for adding new behavior and creating new functions for working with data types. With the `pipe` function from `fp-ts`, you can have usages with good inference.
+
+
+## Data flow
+
+The `pipe` function takes a value as it's first parameter, and then takes a list of functions which are sequentially called on that value. Each function receives the data that was returned from the previous step, and the last value is returned from the whole expression.
+
+```ts
+pipe(
+  5,
+  (n: number) => {
+    // n is 5
+    return n + 10
+  },
+  (n: number) => {
+    // n is 10
+    return n * 2
+  }
+) // final result is 20
+```
+
+The type of the value in the chain doesn't necessarily stay the same type, for example:
+
+```ts
+// Uses min/max to ensure n is between min and max
+const clamp = (n: number, min: number, max: number) => ... 
+
+pipe(
+  "foo",
+  (s: string) => {
+    // s is "foo"
+    return s + "bar"
+  },
+  (s: string) => {
+    // s is "foobar"
+    return s.length
+  },
+  (n: number) => {
+    // n is 6
+    return n * 2
+  },
+  (n: number) => {
+    // n is 12
+    return clamp(n, 0, 10)
+  }
+) // result is 10
+```
+
+This could be cleaned up a bit without the explanatory comments and annotations:
+
+```ts
+pipe(
+  "foo",
+  s => s + "bar",
+  s => s.length,
+  n => n * 2,
+  n => clamp(n, 0, 10)
+)
+```
+
+## Specializing Functions
+
+Let's play around with the functions here and provide names for some of the common operations:
+```ts
+const concat = (s1: string, s2: string) => s1 + s2
+const len = (a: Array<unknown>) => a.length
+const add = (a: number, b: number) => a + b
+const multiply = (a: number, b: number) => a + b
+```
+
+And use those in the `pipe` chain:
+```ts
+pipe(
+  "foo",
+  s => concat(s, "bar"),
+  s => len(s),
+  n => multiply(n, 2),
+  n => clamp(n, 0, 10)
+)
+```
+
+This doesn't really improve on the previous example at all, but let's try to rearrange the parameters a bit, and _curry_ the functions:
+
+```ts
+const concat = (s2: string) => (s1: string) => s1 + s2
+const add = (a: number) => (b: number) => a + b
+const multiply = (a: number) => (b: number) => a + b
+const clamp = (min: number, max: number) => (n: number) => ...
+```
+
+Note the reversal of the `s1`/`s2` parameters, and the arrangement of the parameters of `clamp`. This may seem odd at first, but it's a deliberate decision to make application in a pipe easier.
+
+Using the new curried versions of each function we arrive at:
+
+```ts
+pipe(
+  "foo",
+  s => concat("bar")(s),
+  s => len(s),
+  n => multiply(2)(n),
+  n => clamp(0, 10)(n)
+)
+```
+
+An interesting pattern has emerged... Every anonymous function we've used in the pipe takes the value passed to it as the last argument in its own argument list. In JavaScript, you can replace the expression `s => <expression>(s)` with `<expression>`. So, for example, you can replace:
+
+`s => concat("bar")(s)` with `concat("bar")`
+
+`s => len(s)` with `len`
+
+`n => multiply(2)(n)` with `multiply(2)`, and
+
+`n => clamp(0, 10)(n)` with `clamp(0, 10)`
+
+Let's make those replacements in our snippet:
+
+```ts
+pipe(
+  "foo",
+  addStr("bar"),
+  len,
+  multiply(2),
+  clamp(0, 10)
+)
+```
+
+What we arrive at is a syntax that's very close to method chaining, but has a few additional benefits in extensibility.
+
+## In fp-ts
+
+The `fp-ts` library heavily utilizes this pattern, as most functions are fashioned specifically to be used with `pipe`. Let's take a look at this snippet which uses some standard JS array methods:
+
+```ts
+const myNumbers = [1,2,3]
+
+myNumbers
+  .map(n => n + 1)
+  .filter(n => n > 2)
+```
+
+Now, compare this to using fp-ts's `pipe` and `Array` module:
+
+```ts
+import { A } from 'fp-ts/Array'
+import { pipe } from 'fp-ts/function'
+
+pipe(
+  myNumbers,
+  A.map(n => n + 1),
+  A.filter(n => n > 2)
+)
+```
+
+The `myNumbers` array is passed through to the `A.map` function, and then the returned value is passed to the `A.filter` function. The value returned from `A.filter` is the final result returned from the `pipe` call. This snippet resembles it's chainable counterpart, and it's due to how the functions were designed.
+
+## Implementing the pipeable pattern
+
+Implementing a pipeable API is just a matter of arranging the parameters in the right order. Take a look at these function signatures from `fp-ts`'s `Array` module:
+
+```ts
+filter<A>(f: (a:A) => boolean) => (as: Array<A>) => Array<A>
+map<A, B>(f: (a: A) => B) => (as: Array<A>) => Array<B>
+```
+
+Notice anything in common? Both functions take the value they're operating on _last_, in a parameter list by itself.
+
+This was done specifically to make it easier to use in the context of a `pipe` chain. Here, `filter` and `map` can be used in a pipe the same way they'd have been used in a method chain.
+
+
+## Extensibility
+
+Since the only requirement for a function to be used in a pipe chain is that the last parameter list be solely the value it's operating on, it's trivial to add custom functions that can be interspersed with other functions. For example, we can define a function that works on arrays by making the last parameter list take an array:
+
+```ts
+const partition = (f: (a: A) => boolean) => (as: Array<A>): Array<Either<A, B>> => ...
+```
+
+Since the last parameter is an array, we can inject this function anywhere inside of a `pipe` chain with an an Array:
+
+```ts
+pipe(
+  myNumbers,
+  A.map(n => n+ 1),
+  partition(n => n > 2)
+)
+```
+
+It's almost as if we extended the `Array` type to include the `partition` function! This would be quite difficult with a chainable-style API. 
+
+## Discoverability
+
+A common lament of pipeable APIs is that they aren't as "discoverable" as chainable APIs. This refers to the use of an autocomplete feature in IDEs, where you can type an expression, like: "`myNumbers.`" and your IDE will provide you a list of methods that are available on arrays.
+
+Since a pipeable API uses free-standing functions as opposed to methods, this isn't as straightforward. A technique that's often used is to import the free-standing functions into a short identifier namespace, for example:
+
+```ts
+import * as A from 'fp-ts/Array'
+```
+
+Now, when you type the expression "`A.`" your IDE's autocomplete will provide you with a list of those free-standing functions that operate on arrays.
+
+Of course, this isn't as nice as method chaining, but the tradeoff of extensibility is perhaps worth it.
+
+## The future
+
+The [pipeline operator proposal](https://github.com/tc39/proposal-pipeline-operator) is currently at stage 1 (which unfortunately means that it won't be added to typescript). If accepted, pipeable APIs benefit from getting some dedicated syntax, whre we can replace our original snippet:
+
+```js
+pipe(
+  "foo",
+  addStr("bar"),
+  len,
+  multiply(2),
+  clamp(0, 10)
+)
+```
+
+with:
+
+```js
+"foo"
+  |> addStr("bar")
+  |> len
+  |> multiply(2)
+  |> clamp(0, 10)
+```

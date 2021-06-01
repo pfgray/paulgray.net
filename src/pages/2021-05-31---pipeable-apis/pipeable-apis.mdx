@@ -13,7 +13,7 @@ tags:
 
 
 
-Pipeable APIs provide flexibility for adding new behavior and creating new functions for working with data types. With the `pipe` function from `fp-ts`, you can have usages with good inference.
+Pipeable APIs provide flexibility for adding new behavior and creating new functions for working with data types. With the `pipe` function from `fp-ts`, you can construct usages with good inference.
 
 
 ## Data flow
@@ -195,12 +195,54 @@ Since the last parameter is an array, we can inject this function anywhere insid
 ```ts
 pipe(
   myNumbers,
-  A.map(n => n+ 1),
+  A.map(n => n + 1),
   partition(n => n > 2)
 )
 ```
 
 It's almost as if we extended the `Array` type to include the `partition` function! This would be quite difficult with a chainable-style API. 
+
+## Inference
+
+When the subject of your function is generic, and the types of the other parameters depend on the type of the subject, using the function in a point free way helps with inference. 
+
+Consider the following usage which, while correct,  doesn't type check:
+
+```ts
+const myNumbers = [1, 2, 3]
+
+A.map(n => n + 1)(ns)
+```
+
+The type of the parameter `n` depends on the type of the array we pass it in the second argument list (`ns`). In order to fix this usage, you'd have to explicitly note the type parameter in the anonymous function:
+
+```ts
+A.map((n: number) => n + 1)(ns)
+```
+
+This is because Typescript's inference works left to right, so in order to resolve the type of the expression `A.map(n => n + 1)(ns)` it must first resolve the type of the expression `A.map(n => n + 1)`. Unfortunately, it doesn't have enough information in that context to be able to know that you will eventually pass an array of `number`s (even though it's immediately after!).
+
+Now consider using this with `pipe`:
+
+```ts
+pipe(
+  ns,
+  A.map(n => n + 1)
+)
+```
+
+Typescript will resolve the type of `ns` (which is `Array<number>`), _before_ resolving the type of `A.map(n => n + 1)`. The type of `pipe` signifies that the second parameter be a function that takes the first parameter: `pipe(ns, <function that takes Array<number>>)` with this knowledge, the compiler knows that the anonymous function we supply to `map` will take a number, and so Typescript will infer it for us.
+
+If instead we tried:
+```ts
+pipe(
+  ns,
+  a => A.map(n => n + 1)(a)
+)
+```
+
+We'd be back to square one, and we'd need to explicitly annotate the type of `n`.
+
 
 ## Discoverability
 

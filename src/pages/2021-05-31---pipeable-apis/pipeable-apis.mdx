@@ -258,6 +258,44 @@ Now, when you type the expression "`A.`" your IDE's autocomplete will provide yo
 
 Of course, this isn't as nice as method chaining, but the tradeoff of extensibility is perhaps worth it.
 
+## Pipe vs flow
+
+`flow` is another function provided by `fp-ts` which is similar to `pipe`, but is used in fully point-free implementations. Instead of taking a value and applying functions to that value successively, `flow` takes a list of functions and composes them together, returning a new function which will invoke the functions passed to flow. `flow` is essentially like `compose`, except backwards, applying the leftmost function first. For example, let's suppose we have three functions, `f`, `g`, and `h`, and we wish to apply them in order, like:
+
+```ts
+h(g(f(1)))
+```
+
+First, `f` will be applied to the argument `1`, then `g` will be applied to the return of `f`, and `h` applied to the return of `g`. `flow` can take these functions and build another function, combining them all:
+
+```ts
+const f_then_g_then_h = flow(f, g, h);
+
+f_then_g_then_h(1)
+```
+
+As a general rule, whenever you see an expression like: `s => pipe(s, ...)`, it can logically be replaced with `flow(...)`. However, this replacement can't always practically be done due to the way Typescript's inference works. Like with `pipe`, using functions with a type argument is when it starts to fall over:
+
+```ts
+flow(
+  A.filter(n => n > 1),
+  A.map(n => n + 1)
+)
+```
+
+This expression produces a _logically_ correct function that filters an array of numbers, and then adds one to each, but it doesn't typecheck, since there's no such array in sight. The type of the expression `A.filter(n => n > 1)` is checked first, and the type parameter corresponding to the type of values in the array defaults to `unknown`.
+
+Where `flow` _does_ work generally is in cases where Typescript already has the type information it needs. If we assign this expression to a variable with the type annotated, Typescript can suddenly resolve the type:
+
+```ts
+const modNumbers: (as: Array<number>) => Array<number> =
+  flow(
+    A.filter(n => n > 1),
+    A.map(n => n + 1)
+  )
+```
+
+
 ## The future
 
 The [pipeline operator proposal](https://github.com/tc39/proposal-pipeline-operator) is currently at stage 1 (which unfortunately means that it won't be added to typescript). If accepted, pipeable APIs benefit from getting some dedicated syntax, whre we can replace our original snippet:

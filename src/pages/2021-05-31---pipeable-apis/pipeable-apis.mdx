@@ -25,7 +25,7 @@ pipe(
   5,
   (n: number) => {
     // n is 5
-    return n + 10
+    return n + 5
   },
   (n: number) => {
     // n is 10
@@ -211,7 +211,7 @@ Consider the following usage which, while correct,  doesn't type check:
 ```ts
 const myNumbers = [1, 2, 3]
 
-A.map(n => n + 1)(ns)
+A.map(n => n + 1)(myNumbers)
 ```
 
 The type of the parameter `n` depends on the type of the array we pass it in the second argument list (`ns`). In order to fix this usage, you'd have to explicitly note the type parameter in the anonymous function:
@@ -226,17 +226,17 @@ Now consider using this with `pipe`:
 
 ```ts
 pipe(
-  ns,
+  myNumbers,
   A.map(n => n + 1)
 )
 ```
 
-Typescript will resolve the type of `ns` (which is `Array<number>`), _before_ resolving the type of `A.map(n => n + 1)`. The type of `pipe` signifies that the second parameter be a function that takes the first parameter: `pipe(ns, <function that takes Array<number>>)` with this knowledge, the compiler knows that the anonymous function we supply to `map` will take a number, and so Typescript will infer it for us.
+Typescript will resolve the type of `ns` (which is `Array<number>`), _before_ resolving the type of `A.map(n => n + 1)`. The type of `pipe` signifies that the second parameter be a function that takes the first parameter: `pipe(myNumbers, <function that takes Array<number>>)` with this knowledge, the compiler knows that the anonymous function we supply to `map` will take a number, and so Typescript will infer it for us.
 
 If instead we tried:
 ```ts
 pipe(
-  ns,
+  myNumbers,
   a => A.map(n => n + 1)(a)
 )
 ```

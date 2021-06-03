@@ -1,9 +1,9 @@
 ---
 title: Pipeable APIs
 subtitle: An introduction to pipeable APIs in fp-ts
-date: "2021-05-30T00:00:00.000Z"
+date: "2021-06-03T00:00:00.000Z"
 layout: post
-draft: true
+draft: false
 tags:
   - javascript
   - typescript
@@ -285,7 +285,7 @@ flow(
 
 This expression produces a _logically_ correct function that filters an array of numbers, and then adds one to each, but it doesn't typecheck, since there's no such array in sight. The type of the expression `A.filter(n => n > 1)` is checked first, and the type parameter corresponding to the type of values in the array defaults to `unknown`.
 
-Where `flow` _does_ work generally is in cases where Typescript already has the type information it needs. If we assign this expression to a variable with the type annotated, Typescript can suddenly resolve the type:
+Where `flow` _does_ work is in cases where Typescript already has the type information it needs. If we assign this expression to a variable with the type annotated, Typescript can suddenly resolve the type:
 
 ```ts
 const modNumbers: (as: Array<number>) => Array<number> =

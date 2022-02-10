@@ -30,7 +30,7 @@
     "gatsby-transformer-sharp": "^2.0.0",
     "gatsby-transformer-yaml": "^2.0.0",
     "glamor": "^2.20.40",
-    "node-sass": "^4.11.0",
+    "node-sass": "^7.0.0",
     "prism-themes": "^1.0.1",
     "prismjs": "^1.15.0",
     "react": "^16.8.3",

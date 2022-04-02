@@ -3,8 +3,6 @@ import React from "react"
 // import SluggerContext from "components/SluggerContext"
 import kebabCase from "lodash/kebabCase";
 
-
-
 const AutoLinkedHeading = ({ header: H, children, ...props }) => (
     <H {...props} id={kebabCase(children)}>
       <a href={`#${kebabCase(children)}`}>{children}</a>

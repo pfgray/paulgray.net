@@ -5,8 +5,6 @@ name: CI
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -27,6 +25,17 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '14'
+            - name: Configure AWS credentials
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id:${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key:${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
@@ -44,3 +53,9 @@ jobs:
         run: |
           yarn build
           ls -al public
+
+      - name: Create Bucket
+        run: aws s3 create-bucket --bucket ${{ steps.extract_branch.outputs.branch }}
+      - name: Deploy
+        run: aws s3 sync ./public s3://${{ steps.extract_branch.outputs.branch }}
+

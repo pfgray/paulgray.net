@@ -35,13 +35,16 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
+          aws-region: us-east-1
 
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
           node -v
           yarn -v
+
+      - name: Create Bucket
+        run: aws s3api create-bucket --bucket ${{ steps.branch-name.outputs.current_branch }}
       
       # Runs a single command using the runners shell
       - name: Run yarn install
@@ -54,8 +57,6 @@ jobs:
           yarn build
           ls -al public
 
-      - name: Create Bucket
-        run: aws s3api create-bucket --bucket ${{ steps.branch-name.outputs.current_branch }}
       - name: Deploy
         run: aws s3 sync ./public s3://${{ steps.branch-name.outputs.current_branch }}
 

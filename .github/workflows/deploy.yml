@@ -44,8 +44,7 @@ jobs:
           yarn -v
 
       - name: Create Bucket
-        run: aws s3api create-bucket --bucket pg-net-${{ steps.branch-name.outputs.current_branch }}
-        run: aws s3api put-object-acl --bucket pg-net-${{ steps.branch-name.outputs.current_branch }} --key exampleobject --acl public-read
+        run: aws s3api mb --bucket pg-net-${{ steps.branch-name.outputs.current_branch }}
       
       # Runs a single command using the runners shell
       - name: Run yarn install

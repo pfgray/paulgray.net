@@ -61,12 +61,12 @@ jobs:
         run: aws s3 sync --acl public-read ./public s3://pg-net-${{ steps.branch-name.outputs.current_branch }}
 
       - name: Configure Website Hosting
-        run: aws s3 website s3://pg-net-${{ steps.branch-name.outputs.current_branch }}/ --index-document index.html
+        run: aws s3 website s3://pg-net-${{ steps.branch-name.outputs.current_branch }}/ --index-document index.html --error-document 404.html
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            :earth_americas: A sample of this branch has been deployed at https://pg-net-${{ steps.branch-name.outputs.current_branch }}.s3.amazonaws.com/
+            :earth_americas: A sample of this branch has been deployed at http://pg-net-${{ steps.branch-name.outputs.current_branch }}.s3-website.us-east-1.amazonaws.com/
 

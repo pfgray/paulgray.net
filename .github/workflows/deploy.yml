@@ -1,13 +1,13 @@
-# This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Deploy Site
 
-# Controls when the workflow will run
+
+
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  pull_request:
-    branches: [ master ]
-
+  push:
+    branches:
+      - $default-branch
+  
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -28,76 +28,20 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: yarn.lock
 
-      - name: Get branch name
-        id: branch-name
-        uses: tj-actions/branch-names@v5.2
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: |
-          node -v
-          yarn -v
-
-      - name: Create Bucket
-        run: aws s3api create-bucket --acl public-read --bucket ${{ steps.branch-name.outputs.current_branch }}.paulgray.net
       
       # Runs a single command using the runners shell
       - name: Run yarn install
-        run: |
-          yarn install
+        run: yarn install
 
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          yarn build
-          ls -al public
+      - name: Run the build
+        run: yarn build
 
       - name: Deploy
-        run: aws s3 sync --acl public-read ./public s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net
-
-      - name: Configure Website Hosting
-        run: aws s3 website s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net/ --index-document index.html --error-document 404.html
-
-      - name: Configure DNS
-        run: |
-          aws route53 change-resource-record-sets --hosted-zone-id Z2P95MLRT2S18W --change-batch '
-            {
-              "Comment": "Alias record for S3 bucket",
-              "Changes": [{
-                "Action": "CREATE",
-                "ResourceRecordSet": {
-                  "Name": "${{ steps.branch-name.outputs.current_branch }}.paulgray.net",
-                  "Type": "A",
-                  "AliasTarget":{
-                    "HostedZoneId": "Z3AQBSTGFYJSTF",
-                    "DNSName": "s3-website-us-east-1.amazonaws.com",
-                    "EvaluateTargetHealth": true
-                  }
-                }
-              }]
-            }
-            ';
-
-      - name: Find URL Comment
-        uses: peter-evans/find-comment@v2
-        id: fc
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: A sample of this branch has been deployed at
-
-      - name: Create comment
-        uses: peter-evans/create-or-update-comment@v2
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          body: |
-            :earth_americas: A sample of this branch has been deployed at http://${{ steps.branch-name.outputs.current_branch }}.paulgray.net/
-          edit-mode: replace
-
+        run: aws s3 sync --acl public-read ./public s3://aws-website-paulgraynet-1ze07

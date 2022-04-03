@@ -44,8 +44,7 @@ jobs:
           yarn -v
 
       - name: Create Bucket
-        run: aws s3api create-bucket --bucket pg-net-${{ steps.branch-name.outputs.current_branch }}
-        run: aws s3api put-object-acl --bucket pg-net-${{ steps.branch-name.outputs.current_branch }} --key exampleobject --acl public-read
+        run: aws s3api create-bucket --acl public-read --bucket pg-net-${{ steps.branch-name.outputs.current_branch }}
       
       # Runs a single command using the runners shell
       - name: Run yarn install
@@ -59,5 +58,12 @@ jobs:
           ls -al public
 
       - name: Deploy
-        run: aws s3 sync ./public s3://pg-net-${{ steps.branch-name.outputs.current_branch }}
+        run: aws s3 sync --acl public-read ./public s3://pg-net-${{ steps.branch-name.outputs.current_branch }}
+
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            :earth_americas: A sample of this branch has been deployed at https://pg-net-${{ steps.branch-name.outputs.current_branch }}.s3.amazonaws.com/
 

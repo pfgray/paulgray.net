@@ -44,7 +44,7 @@ jobs:
           yarn -v
 
       - name: Create Bucket
-        run: aws s3api create-bucket --acl public-read --bucket pg-net-${{ steps.branch-name.outputs.current_branch }}
+        run: aws s3api create-bucket --acl public-read --bucket ${{ steps.branch-name.outputs.current_branch }}.paulgray.net
       
       # Runs a single command using the runners shell
       - name: Run yarn install
@@ -58,15 +58,35 @@ jobs:
           ls -al public
 
       - name: Deploy
-        run: aws s3 sync --acl public-read ./public s3://pg-net-${{ steps.branch-name.outputs.current_branch }}
+        run: aws s3 sync --acl public-read ./public s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net
 
       - name: Configure Website Hosting
-        run: aws s3 website s3://pg-net-${{ steps.branch-name.outputs.current_branch }}/ --index-document index.html --error-document 404.html
+        run: aws s3 website s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net/ --index-document index.html --error-document 404.html
+
+      - name: Configure DNS
+        run: |
+          aws route53 change-resource-record-sets --hosted-zone-id Z2P95MLRT2S18W --change-batch '
+            {
+              "Comment": "Alias record for S3 bucket",
+              "Changes": [{
+                "Action": "CREATE",
+                "ResourceRecordSet": {
+                  "Name": "${{ steps.branch-name.outputs.current_branch }}.paulgray.net",
+                  "Type": "A",
+                  "AliasTarget":{
+                    "HostedZoneId": "Z3AQBSTGFYJSTF",
+                    "DNSName": "${{ steps.branch-name.outputs.current_branch }}.paulgray.net.s3-website-us-east-1.amazonaws.com",
+                    "EvaluateTargetHealth": true
+                  }
+                }
+              }]
+            }
+            ';
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            :earth_americas: A sample of this branch has been deployed at http://pg-net-${{ steps.branch-name.outputs.current_branch }}.s3-website.us-east-1.amazonaws.com/
+            :earth_americas: A sample of this branch has been deployed at http://${{ steps.branch-name.outputs.current_branch }}.paulgray.net.s3-website.us-east-1.amazonaws.com/
 

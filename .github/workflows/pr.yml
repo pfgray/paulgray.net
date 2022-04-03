@@ -64,7 +64,7 @@ jobs:
             {
               "Comment": "Alias record for S3 bucket",
               "Changes": [{
-                "Action": "CREATE",
+                "Action": "UPSERT",
                 "ResourceRecordSet": {
                   "Name": "${{ steps.branch-name.outputs.current_branch }}.paulgray.net",
                   "Type": "A",

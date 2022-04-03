@@ -1,8 +1,6 @@
 
 name: Deploy Site
 
-
-
 on:
   push:
     branches:

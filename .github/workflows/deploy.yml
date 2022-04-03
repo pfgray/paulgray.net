@@ -59,6 +59,7 @@ jobs:
 
       - name: Deploy
         run: aws s3 sync --acl public-read ./public s3://pg-net-${{ steps.branch-name.outputs.current_branch }}
+        run: aws s3 website s3://pg-net-${{ steps.branch-name.outputs.current_branch }}/ --index-document index.html
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2

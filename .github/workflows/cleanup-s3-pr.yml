@@ -1,11 +1,10 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Deploy Test Site
+name: Destroy & Cleanup PR from S3
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   pull_request:
+    types: [ closed ]
     branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
@@ -20,14 +19,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '14'
-          cache: 'yarn'
-          cache-dependency-path: yarn.lock
-
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v5.2
@@ -39,32 +30,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       
-      # Runs a single command using the runners shell
-      - name: Run yarn install
-        run: |
-          yarn install
+      - name: Checking existing DNS
+        uses: sergeysova/jq-action@v2
+        id: dns
+        with:
+          cmd: aws route53 list-resource-record-sets --hosted-zone-id Z2P95MLRT2S18W | jq '.ResourceRecordSets | map(select(.Name == "${{ steps.branch-name.outputs.current_branch }}.paulgray.net.")) | length'
 
-      # Runs a set of commands using the runners shell
-      - name: Run the build
-        run: |
-          yarn build
-
-      - name: Create Bucket
-        run: aws s3api create-bucket --acl public-read --bucket ${{ steps.branch-name.outputs.current_branch }}.paulgray.net
-
-      - name: Deploy
-        run: aws s3 sync --acl public-read ./public s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net
-
-      - name: Configure Website Hosting
-        run: aws s3 website s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net/ --index-document index.html --error-document 404.html
-
-      - name: Configure DNS
+      - name: Delete DNS
+        if: ${{ steps.dns.outputs.value > 0 }}
         run: |
           aws route53 change-resource-record-sets --hosted-zone-id Z2P95MLRT2S18W --change-batch '
             {
               "Comment": "Alias record for S3 bucket",
               "Changes": [{
-                "Action": "UPSERT",
+                "Action": "DELETE",
                 "ResourceRecordSet": {
                   "Name": "${{ steps.branch-name.outputs.current_branch }}.paulgray.net",
                   "Type": "A",
@@ -78,12 +57,18 @@ jobs:
             }
             ';
 
+      - name: Clear Bucket
+        run: aws s3 rm s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net --recursive
+
+      - name: Delete Bucket
+        run: aws s3 rb s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net --force 
+
       - name: Find URL Comment
         uses: peter-evans/find-comment@v2
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-includes: A sample of this branch has been deployed at
+          body-includes: Sample deployment at
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v2
@@ -91,6 +76,6 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           body: |
-            :earth_americas: A sample of this branch has been deployed at http://${{ steps.branch-name.outputs.current_branch }}.paulgray.net/
+            :information_source: Sample deployment at http://${{ steps.branch-name.outputs.current_branch }}.paulgray.net/ was deleted.
           edit-mode: replace
 

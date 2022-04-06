@@ -12,6 +12,11 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  run_if:
+    if:  github.event.issue.user.login == 'pfgray'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running S3 Deploy"
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
@@ -29,15 +34,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      
-      - name: Checking existing DNS
-        uses: sergeysova/jq-action@v2
-        id: dns
-        with:
-          cmd: aws route53 list-resource-record-sets --hosted-zone-id Z2P95MLRT2S18W | jq '.ResourceRecordSets | map(select(.Name == "${{ steps.branch-name.outputs.current_branch }}.paulgray.net.")) | length'
 
       - name: Delete DNS
-        if: ${{ steps.dns.outputs.value > 0 }}
+        continue-on-error: true
         run: |
           aws route53 change-resource-record-sets --hosted-zone-id Z2P95MLRT2S18W --change-batch '
             {

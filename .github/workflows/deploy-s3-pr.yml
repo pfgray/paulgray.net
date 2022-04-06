@@ -13,6 +13,11 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  run_if:
+    if:  github.event.issue.user.login == 'pfgray'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Running S3 Deploy"
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on

@@ -14,7 +14,7 @@ export default function ({ location: { pathname } }) {
       <div className="sidebar-inner">
         <h1 className="logo-header">
           {/* <img src={me} className="sidebar-profile-pic" alt="my face"/> */}
-          paul<span className="accent">gray</span>.net
+          paul<span className="accent">gray</span>.foo
         </h1>
         <ul className="links">
           <li><Link to='/' className={pathname !== '/me' && !isRef(pathname) ? 'active' : ''}>blog</Link></li>

@@ -31,7 +31,8 @@ jobs:
         with:
           node-version: '14'
           cache: 'yarn'
-          cache-dependency-path: yarn.lock
+      - run: yarn install
+      - run: yarn build
 
       - name: Get branch name
         id: branch-name
@@ -43,16 +44,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      
-      # Runs a single command using the runners shell
-      - name: Run yarn install
-        run: |
-          yarn install
-
-      # Runs a set of commands using the runners shell
-      - name: Run the build
-        run: |
-          yarn build
 
       - name: Create Bucket
         run: aws s3api create-bucket --acl public-read --bucket ${{ steps.branch-name.outputs.current_branch }}.paulgray.net

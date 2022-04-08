@@ -43,6 +43,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - run: |
+          echo "cache dir is: ${{ steps.yarn-cache-dir-path.outputs.dir }}"
+          ls -al ${{ steps.yarn-cache-dir-path.outputs.dir }}
+
       - run: yarn install --prefer-online
       - run: yarn build
 

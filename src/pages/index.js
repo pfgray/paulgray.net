@@ -17,7 +17,7 @@ export default class Index extends React.Component {
     return (
       <div className="index">
         <Helmet>
-          <title>paulgray.nett</title>
+          <title>paulgray.net</title>
           <meta charset="utf-8" />
           {/* Facebook Open Graph */}
           <meta property="og:url" content="https://paulgray.net" />

@@ -211,16 +211,15 @@ a:hover {
       width: 100%;
     }
   }
-  input.lightbox-preview.small {
+  img.lightbox-preview.small {
     display: none;
     margin-bottom: 0;
     @media #{$small} {
       display: block;
     }
   }
-  input.lightbox-preview.big {
+  img.lightbox-preview.big {
     width: 45%;
-    cursor: pointer;
     @media #{$small} {
       display: none;
     }

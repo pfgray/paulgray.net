@@ -37,7 +37,6 @@ module.exports = {
     `gatsby-transformer-yaml`,
     `gatsby-plugin-sharp`,
     `gatsby-plugin-catch-links`,
-    `gatsby-plugin-glamor`,
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-sass`,
     `gatsby-transformer-javascript-frontmatter`,

@@ -1,6 +1,5 @@
 import React from "react";
 import Helmet from "react-helmet";
-import Lightbox from "react-images";
 
 import caliper_md from "../img/caliper-md.png";
 import caliper_big from "../img/caliper-big.png";
@@ -21,8 +20,7 @@ const projects = [
       "A Caliper event store which will allows monitoring of learning tools' event streams, store them in a couchdb instance.",
     img: caliper_md,
     img_big: caliper_big,
-    github: "https://github.com/pfgray/caliper-store",
-    live: "http://sift.paulgray.net"
+    github: "https://github.com/pfgray/caliper-store"
   },
   {
     name: "Mock LTI Consumer",
@@ -30,8 +28,7 @@ const projects = [
       "An example LTI Consumer for debugging LTI applications. Includes support for Outcomes management service, & outcomes 1.1.",
     img: mocklti_md,
     img_big: mocklti_big,
-    github: "https://github.com/pfgray/mock-lti2-consumer",
-    live: "http://lti.paulgray.net"
+    github: "https://github.com/pfgray/mock-lti2-consumer"
   },
   {
     name: "CASA node.js",
@@ -39,8 +36,7 @@ const projects = [
       "An example CASA node (pun intended) which is completely open and un-secured. It's useful for testing CASA implementations.",
     img: casa_md,
     img_big: casa_big,
-    github: "https://github.com/pfgray/casa-nodejs",
-    live: "http://casa.paulgray.net"
+    github: "https://github.com/pfgray/casa-nodejs"
   },
   {
     name: "Link",
@@ -96,14 +92,13 @@ export default class Me extends React.Component {
             <div className="project" key={p.name}>
               <div className="project-info">
                 <h3>{p.name}</h3>
-                <input
-                  type="image"
-                  className="lightbox-preview small"
-                  key={1}
-                  src={p.img}
-                  alt={p.name}
-                  onClick={() => this.openLightbox(p.name)}
-                />
+                {p.img ?
+                  <img
+                    className="lightbox-preview small"
+                    src={p.img}
+                    alt={p.name}
+                  />
+                : null}
                 <p>{p.desc}</p>
                 <div>
                   <a href={p.github}>Source code</a>
@@ -111,23 +106,12 @@ export default class Me extends React.Component {
                 <div>{p.live ? <a href={p.live}>live</a> : null}</div>
               </div>
               {p.img
-                ? [
-                    <input
-                      type="image"
-                      className="lightbox-preview big"
-                      key={1}
-                      src={p.img}
-                      alt={p.name}
-                      onClick={() => this.openLightbox(p.name)}
-                    />,
-                    <Lightbox
-                      key={2}
-                      images={[{ src: p.img_big }]}
-                      showImageCount={false}
-                      isOpen={this.state.openLightbox === p.name}
-                      onClose={this.closeLightbox.bind(this)}
-                    />
-                  ]
+                ?
+                  <img
+                    className="lightbox-preview big"
+                    src={p.img}
+                    alt={p.name}
+                  />
                 : null}
             </div>
           ))}

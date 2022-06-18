@@ -1,6 +1,6 @@
 import React from 'react';
 
-import remark from 'remark'
+import { remark } from 'remark'
 import strip from 'strip-markdown'
 
 

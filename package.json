@@ -1,5 +1,5 @@
 {
-  "name": "gatsby-starter-default",
+  "name": "paulgray.net",
   "description": "Gatsby default starter",
   "version": "1.0.0",
   "author": "Paul Gray <pfbgray@gmail.com>",
@@ -7,6 +7,7 @@
     "@mdx-js/mdx": "1",
     "@mdx-js/react": "v1",
     "@mdx-js/tag": "^0.20.3",
+    "@types/react-helmet": "^6.1.5",
     "es6-object-assign": "^1.1.0",
     "gatsby": "^4.16.0",
     "gatsby-cli": "^4.16.0",
@@ -56,5 +57,6 @@
     "develop": "gatsby develop -H 0.0.0.0 ",
     "format": "prettier --trailing-comma es5 --no-semi --single-quote --write \"pages/*.js\" \"utils/*.js\" \"wrappers/*.js\" \"html.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
-  }
+  },
+  "repository": "git@github.com:pfgray/paulgray.net.git"
 }

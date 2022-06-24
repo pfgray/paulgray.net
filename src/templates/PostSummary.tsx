@@ -1,10 +1,10 @@
-import React from 'react';
+import * as React from 'react';
 
 import { remark } from 'remark'
 import strip from 'strip-markdown'
 
 
-export default function PostSummary({ post }) {
+export default function PostSummary({ post }: any) {
   
   remark()
     .use(strip)

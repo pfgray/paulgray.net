@@ -30,8 +30,8 @@ exports.createPages = ({ graphql, actions }) => {
       return Promise.reject(result.errors)
     }
 
-    const blogPostTemplate = path.resolve(`src/templates/post.js`);
-    const noteTemplate = path.resolve(`src/templates/note.js`);
+    const blogPostTemplate = path.resolve(`src/templates/post.tsx`);
+    const noteTemplate = path.resolve(`src/templates/note.tsx`);
 
     // Create blog posts pages.
     result.data.allMdx.edges.forEach(edge => {
@@ -50,7 +50,7 @@ exports.createPages = ({ graphql, actions }) => {
     // Create a tag page:
     result.data.allMdx.edges.forEach(edge => {
       // console.log('creating page for: ', JSON.stringify(, null, 2));
-      const tagListTemplate = path.resolve(`src/templates/tag.js`);
+      const tagListTemplate = path.resolve(`src/templates/tag.tsx`);
       const tags =
         edge.node.frontmatter && edge.node.frontmatter.tags
           ? edge.node.frontmatter.tags

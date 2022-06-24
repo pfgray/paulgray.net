@@ -1,19 +1,18 @@
-import React from "react";
+import * as React from "react";
 import Helmet from "react-helmet";
 import { graphql } from "gatsby";
 
-export default class Notes extends React.Component {
-  render() {
-    const md = this.props.data.allMdx
-      ? this.props.data.allMdx.edges
+export default (props: any) => {
+    const md = props.data.allMdx
+      ? props.data.allMdx.edges
       : [];
-    const js = this.props.data.allJsFrontmatter
-      ? this.props.data.allJsFrontmatter.edges
+    const js = props.data.allJsFrontmatter
+      ? props.data.allJsFrontmatter.edges
       : [];
-    // return (<pre>{JSON.stringify(this.props, null, 2)}</pre>);
+    // return (<pre>{JSON.stringify(props, null, 2)}</pre>);
     const posts = [
-      ...md.map(e => ({ ...e.node.fields, ...e.node.frontmatter })),
-      ...js.map(e => ({ ...e.node.fields, ...e.node.data }))
+      ...md.map((e: any) => ({ ...e.node.fields, ...e.node.frontmatter })),
+      ...js.map((e: any) => ({ ...e.node.fields, ...e.node.data }))
     ];
 
     return (
@@ -46,7 +45,6 @@ export default class Notes extends React.Component {
         ))}
       </div>
     );
-  }
 }
 
 export const pageQuery = graphql`

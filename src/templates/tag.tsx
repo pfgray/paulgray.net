@@ -1,27 +1,26 @@
-import React from "react";
+import * as React from "react";
 import ColoredTag from "./ColoredTag";
-import PostSummary from "./PostSummary.js";
+import PostSummary from "./PostSummary";
 import { graphql } from "gatsby";
 
-class TagTemplate extends React.Component {
-  render() {
-    const posts = this.props.data.allMdx
-      ? this.props.data.allMdx.edges.map(e => e.node)
+const TagTemplate = (props: any) => {
+  
+    const posts = props.data.allMdx
+      ? props.data.allMdx.edges.map((e: any) => e.node)
       : [];
 
     return (
       <div>
         <h3>
-          Posts about <ColoredTag tag={this.props.pageContext.tag} />:
+          Posts about <ColoredTag tag={props.pageContext.tag} />:
         </h3>
         {/* <pre>{JSON.stringify(this.props.data.allMarkdownRemark, null, 2)}</pre> */}
-        {posts.map(post => (
+        {posts.map((post: any) => (
           <PostSummary key={post.fields.slug} post={post} />
         ))}
       </div>
     );
   }
-}
 
 export default TagTemplate;
 

@@ -9,18 +9,18 @@ const colors = [
   '#c16ed6'
 ];
 
-function hasher(string) {
+function hasher(str: string) {
   let hash = 0, i, chr, len;
-  if (string.length === 0) return hash;
-  for (i = 0, len = string.length; i < len; i++) {
-    chr   = string.charCodeAt(i);
+  if (str.length === 0) return hash;
+  for (i = 0, len = str.length; i < len; i++) {
+    chr   = str.charCodeAt(i);
     hash  = ((hash << 5) - hash) + chr;
     hash |= 0; // Convert to 32bit integer
   }
   return hash;
 }
 
-export function getColorForString(input) {
+export function getColorForString(input: string) {
   const number = Math.abs(hasher(input));
   return colors[Math.floor(number % colors.length)];
 }

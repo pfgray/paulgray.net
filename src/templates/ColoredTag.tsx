@@ -1,8 +1,8 @@
-import React from "react";
+import * as React from "react";
 import { getColorForString } from "./colors";
 import Link from "gatsby-link";
 
-export default function ColoredTag({ tag }) {
+export default function ColoredTag({ tag }: any) {
   return (
     <Link
       to={"/tag/" + tag}

@@ -2,9 +2,9 @@ import React from 'react';
 import Link from "gatsby-link";
 import me from '../img/me.png';
 
-export default function({location: {pathname}}) {
+export default function({location: {pathname}}: any) {
 
-  function isRef(path) {
+  function isRef(path: any) {
     return path.indexOf('/notes') === 0;
   }
   return (

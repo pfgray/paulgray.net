@@ -1,15 +1,15 @@
-import React from "react";
+import * as React from "react";
 import Helmet from "react-helmet";
 import { graphql } from "gatsby";
 import { MDXRenderer } from "gatsby-plugin-mdx";
 import { MDXProvider } from "@mdx-js/tag";
 import AutoLinkedHeading from "../components/AutoLinkedHeading";
 
-export default class Note extends React.Component {
-  render() {
-    const { title, subtitle, tags } = this.props.data.mdx.frontmatter;
+export default (props: any) => {
+  
+    const { title, subtitle, tags } = props.data.mdx.frontmatter;
 
-    const ogTags = tags.map(t => ({
+    const ogTags = tags.map((t: any) => ({
       property: "og:article:tag",
       content: t
     }));
@@ -33,21 +33,20 @@ export default class Note extends React.Component {
         <div className="post-body">
           <MDXProvider
             components={{
-              h1: props => <AutoLinkedHeading header="h1" {...props} />,
-              h2: props => <AutoLinkedHeading header="h2" {...props} />,
-              h3: props => <AutoLinkedHeading header="h3" {...props} />,
-              h4: props => <AutoLinkedHeading header="h4" {...props} />,
-              h5: props => <AutoLinkedHeading header="h5" {...props} />,
-              h6: props => <AutoLinkedHeading header="h6" {...props} />
+              h1: (props: any) => <AutoLinkedHeading header="h1" {...props} />,
+              h2: (props: any) => <AutoLinkedHeading header="h2" {...props} />,
+              h3: (props: any) => <AutoLinkedHeading header="h3" {...props} />,
+              h4: (props: any) => <AutoLinkedHeading header="h4" {...props} />,
+              h5: (props: any) => <AutoLinkedHeading header="h5" {...props} />,
+              h6: (props: any) => <AutoLinkedHeading header="h6" {...props} />
             }}
           >
-            <MDXRenderer>{this.props.data.mdx.body}</MDXRenderer>
+            <MDXRenderer>{props.data.mdx.body}</MDXRenderer>
           </MDXProvider>
         </div>
         {/* <pre>{JSON.stringify(this.props.data.markdownRemark, null, 2)}</pre> */}
       </div>
     );
-  }
 }
 
 export const pageQuery = graphql`

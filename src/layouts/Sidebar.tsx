@@ -3,9 +3,9 @@ import Link from "gatsby-link";
 
 // todo: make active link rendering better...
 
-export default function ({ location: { pathname } }) {
+export default function ({ location: { pathname } }: any) {
 
-  function isRef(path) {
+  function isRef(path: string) {
     return path.indexOf('/notes') === 0;
   }
 

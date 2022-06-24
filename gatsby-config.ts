@@ -1,5 +1,7 @@
 
-module.exports = {
+import type { GatsbyConfig } from "gatsby"
+
+const config: GatsbyConfig = {
   siteMetadata: {
     title: `The Gray side of Software`,
     author: `@PaulGrizzay`,
@@ -8,6 +10,7 @@ module.exports = {
   mapping: {
     "MarkdownRemark.frontmatter.author": `AuthorYaml`
   },
+  graphqlTypegen: true,
   pathPrefix: "/",
   plugins: [
     {
@@ -43,3 +46,5 @@ module.exports = {
     `gatsby-plugin-layout`
   ]
 };
+
+export default config

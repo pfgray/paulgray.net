@@ -1,9 +1,10 @@
-const _ = require(`lodash`);
-const Promise = require(`bluebird`);
-const path = require(`path`);
-const slash = require(`slash`);
 
-exports.createPages = ({ graphql, actions }) => {
+import type { GatsbyNode } from "gatsby"
+import kebabCase from "lodash/kebabCase";
+import * as path from "path";
+
+
+export const createPages: GatsbyNode['createPages'] = ({ graphql, actions }) => {
   const { createPage } = actions;
 
   // we still want to make pages for drafts, just not show them on the listing page
@@ -24,7 +25,7 @@ exports.createPages = ({ graphql, actions }) => {
         }
       }
     `
-  ).then(result => {
+  ).then((result: any) => {
     if (result.errors) {
       console.log(result.errors);
       return Promise.reject(result.errors)
@@ -37,10 +38,10 @@ exports.createPages = ({ graphql, actions }) => {
     result.data.allMdx.edges.forEach(edge => {
       const slug = generateSlug(edge.node.fileAbsolutePath);
       const template = edge.node.frontmatter.layout === "post" ? blogPostTemplate : noteTemplate;
-      
+
       createPage({
         path: slug,
-        component: slash(template),
+        component: template,
         context: {
           slug: slug
         }
@@ -58,7 +59,7 @@ exports.createPages = ({ graphql, actions }) => {
       tags.forEach(tag => {
         createPage({
           path: `/tag/${tag}`, // required
-          component: slash(tagListTemplate),
+          component: tagListTemplate,
           context: {
             tag: tag
           }
@@ -90,7 +91,7 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
       const fileNode = getNode(node.parent);
       if (node.frontmatter.tags) {
         const tagSlugs = node.frontmatter.tags.map(
-          tag => `/tags/${_.kebabCase(tag)}/`
+          tag => `/tags/${kebabCase(tag)}/`
         );
         createNodeField({ node, name: `tagSlugs`, value: tagSlugs });
       }
@@ -107,9 +108,9 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
 const generateSlug = (fullPath, note) => {
   const dirName = path.basename(path.dirname(fullPath));
   if (fullPath.indexOf("/notes/") === -1) {
-    return `/${_.kebabCase(dirName.split(`---`)[1])}/`;
+    return `/${kebabCase(dirName.split(`---`)[1])}/`;
   } else {
-    return `/notes/${_.kebabCase(dirName.split(`---`)[1])}/`;
+    return `/notes/${kebabCase(dirName.split(`---`)[1])}/`;
   }
 };
 

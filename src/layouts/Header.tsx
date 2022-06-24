@@ -1,10 +1,11 @@
 import React from 'react';
 import Link from "gatsby-link";
 import me from '../img/me.png';
+import { PageProps } from 'gatsby';
 
-export default function({location: {pathname}}: any) {
+export default function({location: {pathname}}: PageProps) {
 
-  function isRef(path: any) {
+  function isRef(path: string) {
     return path.indexOf('/notes') === 0;
   }
   return (

@@ -5,11 +5,12 @@
     "sourceMap": true,
     "outDir": "lib",
     "target": "es5",
-    "lib": ["es6"],
+    "lib": ["es6", "dom"],
     "declaration": true,
     "strict": true,
     "inlineSources": true,
     "jsx": "react",
     "esModuleInterop":true
-  }
+  },
+  "include": ["./src/**/*", "gatsby-node.ts", "gatsby-config.ts", "gatsby-browser.tsx"]
 }

@@ -1,9 +1,10 @@
 import React from 'react';
 import Link from "gatsby-link";
+import { PageProps } from 'gatsby';
 
 // todo: make active link rendering better...
 
-export default function ({ location: { pathname } }: any) {
+export default function ({ location: { pathname } }: PageProps) {
 
   function isRef(path: string) {
     return path.indexOf('/notes') === 0;

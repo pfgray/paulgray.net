@@ -1,17 +1,16 @@
 import * as React from "react";
 import Helmet from "react-helmet";
 import PostSummary from "../templates/PostSummary";
-import { graphql } from "gatsby";
+import { graphql, PageProps } from "gatsby";
 
 import "../css/typography.css";
 import "../css/custom.scss";
+import { RequireAll } from "../types/RequireAll";
 // import 'prismjs/themes/prism-solarizedlight.css';
-
-type foo = Record<string, number>
 
 const dot = <K extends string>(key: K) => <A extends Record<K, any>,>(obj: A): A[K] => obj[key];
 
-export default (props: any) => {
+export default (props: PageProps<RequireAll<Queries.IndexPageQuery>>) => {
   // return <pre>{JSON.stringify(this.props, null, 2)}</pre>;
   const posts = props.data.allMdx.edges.map(dot("node"));
 
@@ -28,15 +27,15 @@ export default (props: any) => {
           content="Paul Gray is a software engineer, and sometimes he writes some stuff."
         />
       </Helmet>
-      {posts.map((post: any) => (
-        <PostSummary key={post.fields.slug} post={post} />
+      {posts.map(post => (
+        <PostSummary key={post.fields?.slug} post={post} />
       ))}
     </div>
   );
 }
 
 export const pageQuery = graphql`
-  query AllMdx {
+  query IndexPage {
     allMdx(
       sort: { order: DESC, fields: [frontmatter___date] }
       filter: { frontmatter: { draft: { ne: true }, layout: { eq: "post" } } }

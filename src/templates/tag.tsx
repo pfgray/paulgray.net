@@ -1,22 +1,23 @@
 import * as React from "react";
 import ColoredTag from "./ColoredTag";
 import PostSummary from "./PostSummary";
-import { graphql } from "gatsby";
+import { graphql, PageProps } from "gatsby";
+import { RequireAll } from "../types/RequireAll";
 
-const TagTemplate = (props: any) => {
+const TagTemplate = (props: PageProps<RequireAll<Queries.TagPageQuery>, {tag: string}>) => {
   
     const posts = props.data.allMdx
-      ? props.data.allMdx.edges.map((e: any) => e.node)
+      ? props.data.allMdx.edges.map(e => e.node)
       : [];
 
     return (
       <div>
         <h3>
-          Posts about <ColoredTag tag={props.pageContext.tag} />:
+          Posts about <ColoredTag tag={props.pageContext.tag} />: ({props.pageContext.tag})
         </h3>
         {/* <pre>{JSON.stringify(this.props.data.allMarkdownRemark, null, 2)}</pre> */}
-        {posts.map((post: any) => (
-          <PostSummary key={post.fields.slug} post={post} />
+        {posts.map(post => (
+          <PostSummary key={post.fields?.slug} post={post} />
         ))}
       </div>
     );

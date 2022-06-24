@@ -1,11 +1,18 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import PropTypes from "prop-types";
 import favicon from "./favicon.ico";
 import logo from "./img/me_200.jpg";
+import { PageProps } from "gatsby";
 
 const BUILD_TIME = new Date().getTime();
 
-export default class HTML extends React.Component {
+type OtherProps = {
+  headComponents: ReactNode[]
+  body: string,
+  postBodyComponents: ReactNode[]
+}
+
+export default class HTML extends React.Component<PageProps & OtherProps> {
   static propTypes = {
     body: PropTypes.string
   };

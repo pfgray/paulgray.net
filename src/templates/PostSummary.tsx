@@ -1,10 +1,23 @@
+import { PageProps } from 'gatsby';
 import * as React from 'react';
 
 import { remark } from 'remark'
 import strip from 'strip-markdown'
 
+export type PostSummaryProps = {
+  post: {
+    frontmatter: {
+      title: string,
+      subtitle: string
+      date: string
+    }
+    fields: {
+      slug: string
+    }
+  }
+}
 
-export default function PostSummary({ post }: any) {
+export default function PostSummary({ post }: PostSummaryProps) {
   
   remark()
     .use(strip)

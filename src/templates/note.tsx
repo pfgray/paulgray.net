@@ -1,11 +1,12 @@
 import * as React from "react";
 import Helmet from "react-helmet";
-import { graphql } from "gatsby";
+import { graphql, PageProps } from "gatsby";
 import { MDXRenderer } from "gatsby-plugin-mdx";
 import { MDXProvider } from "@mdx-js/tag";
 import AutoLinkedHeading from "../components/AutoLinkedHeading";
+import { RequireAll } from "../types/RequireAll";
 
-export default (props: any) => {
+export default (props: PageProps<RequireAll<Queries.RefBySlugQuery>>) => {
   
     const { title, subtitle, tags } = props.data.mdx.frontmatter;
 

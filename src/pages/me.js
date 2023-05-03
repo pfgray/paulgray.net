@@ -49,7 +49,7 @@ const projects = [
 ];
 
 const subtitle =
-  "I love building products that are simple and do one thing very well. Here's a collection of specialized open-source projects I've made over the years. All are available for free (as in speech).";
+  "(This is a test change) I love building products that are simple and do one thing very well. Here's a collection of specialized open-source projects I've made over the years. All are available for free (as in speech).";
 
 export default class Me extends React.Component {
   constructor() {

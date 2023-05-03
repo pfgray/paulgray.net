@@ -6,7 +6,7 @@ name: Provision & Deploy PR to S3
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -14,7 +14,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   run_if:
-    if:  github.event.issue.user.login == 'pfgray'
+    if: github.event.issue.user.login == 'pfgray'
     runs-on: ubuntu-latest
     steps:
       - run: echo "Running S3 Deploy"
@@ -29,8 +29,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '14'
-          cache: 'yarn'
+          node-version: "14"
+          cache: "yarn"
           cache-dependency-path: yarn.lock
 
       - name: Get branch name
@@ -43,7 +43,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      
+
       # Runs a single command using the runners shell
       - name: Run yarn install
         run: |
@@ -55,10 +55,28 @@ jobs:
           yarn build
 
       - name: Create Bucket
-        run: aws s3api create-bucket --acl public-read --bucket ${{ steps.branch-name.outputs.current_branch }}.paulgray.net
+        run: |
+          aws s3api create-bucket --bucket ${{ steps.branch-name.outputs.current_branch }}.paulgray.net
+          aws s3api put-public-access-block --bucket "${{ steps.branch-name.outputs.current_branch }}.paulgray.net" --public-access-block-configuration "BlockPublicPolicy=false"
+          aws s3api put-bucket-policy --bucket "${{ steps.branch-name.outputs.current_branch }}.paulgray.net" --policy '{
+            "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Sid": "PublicReadGetObject",
+                        "Effect": "Allow",
+                        "Principal": "*",
+                        "Action": [
+                            "s3:GetObject"
+                        ],
+                        "Resource": [
+                            "arn:aws:s3:::'"${{ steps.branch-name.outputs.current_branch }}.paulgray.net"'/*"
+                        ]
+                    }
+                ]
+            }'
 
       - name: Deploy
-        run: aws s3 sync --acl public-read ./public s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net
+        run: aws s3 sync ./public s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net
 
       - name: Configure Website Hosting
         run: aws s3 website s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net/ --index-document index.html --error-document 404.html
@@ -98,4 +116,3 @@ jobs:
           body: |
             :earth_americas: A sample of this branch has been deployed at http://${{ steps.branch-name.outputs.current_branch }}.paulgray.net/
           edit-mode: replace
-

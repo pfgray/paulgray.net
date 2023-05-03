@@ -56,30 +56,30 @@ jobs:
 
       - name: Create Bucket
         run: |
-          aws s3api create-bucket --bucket ${{ steps.branch-name.outputs.current_branch }}.paulgray.net
-          aws s3api put-public-access-block --bucket "${{ steps.branch-name.outputs.current_branch }}.paulgray.net" --public-access-block-configuration "BlockPublicPolicy=false"
-          aws s3api put-bucket-policy --bucket "${{ steps.branch-name.outputs.current_branch }}.paulgray.net" --policy '{
+          aws s3api create-bucket --bucket ${{github.event.pull_request.number}}.paulgray.net
+          aws s3api put-public-access-block --bucket "${{github.event.pull_request.number}}.paulgray.net" --public-access-block-configuration "BlockPublicPolicy=false"
+          aws s3api put-bucket-policy --bucket "${{github.event.pull_request.number}}.paulgray.net" --policy '{
             "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Sid": "PublicReadGetObject",
-                        "Effect": "Allow",
-                        "Principal": "*",
-                        "Action": [
-                            "s3:GetObject"
-                        ],
-                        "Resource": [
-                            "arn:aws:s3:::'"${{ steps.branch-name.outputs.current_branch }}.paulgray.net"'/*"
-                        ]
-                    }
-                ]
+              "Statement": [
+                {
+                  "Sid": "PublicReadGetObject",
+                  "Effect": "Allow",
+                  "Principal": "*",
+                  "Action": [
+                    "s3:GetObject"
+                  ],
+                  "Resource": [
+                    "arn:aws:s3:::'"${{github.event.pull_request.number}}.paulgray.net"'/*"
+                  ]
+                }
+              ]
             }'
 
       - name: Deploy
-        run: aws s3 sync ./public s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net
+        run: aws s3 sync ./public s3://${{github.event.pull_request.number}}.paulgray.net
 
       - name: Configure Website Hosting
-        run: aws s3 website s3://${{ steps.branch-name.outputs.current_branch }}.paulgray.net/ --index-document index.html --error-document 404.html
+        run: aws s3 website s3://${{github.event.pull_request.number}}.paulgray.net/ --index-document index.html --error-document 404.html
 
       - name: Configure DNS
         run: |
@@ -89,7 +89,7 @@ jobs:
               "Changes": [{
                 "Action": "UPSERT",
                 "ResourceRecordSet": {
-                  "Name": "${{ steps.branch-name.outputs.current_branch }}.paulgray.net",
+                  "Name": "${{github.event.pull_request.number}}.paulgray.net",
                   "Type": "A",
                   "AliasTarget":{
                     "HostedZoneId": "Z3AQBSTGFYJSTF",
@@ -114,5 +114,5 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
           body: |
-            :earth_americas: A sample of this branch has been deployed at http://${{ steps.branch-name.outputs.current_branch }}.paulgray.net/
+            :earth_americas: A sample of this branch has been deployed at http://${{github.event.pull_request.number}}.paulgray.net/
           edit-mode: replace
